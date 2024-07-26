@@ -2,7 +2,7 @@
 layout: post
 title: "1주차-[데이터 분석가가 반드시 알아야할 모든 것] Chapter10. 데이터 탐색과 시각화"
 date: 2023-07-26
-categories: Machine Learning
+categories: "Machine Learning"
 ---
 
 ## **10.1 탐색적 데이터 분석(Exploratory Data Analysis: EDA)**
@@ -15,9 +15,6 @@ categories: Machine Learning
 -   단순 임의 추출을 통해 1000개의 행 추출 -> 데이터셋을 직접 살펴봄으로써 경향성 대략적으로 파악
 
 ### 10.1.2 탐색적 데이터 분석 실습
-
-seaborn, matplot: 시각화  
-pandas: csv파일 불러오기, 데이터 전처리
 
 head(): 데이터 샘플 확인
 
@@ -38,16 +35,15 @@ stripplot(): 각 관측치의 위치를 직관적으로 표현
 ### 10.2.1 공분산
 
 -   두 변수의 분산의 관계
--   공식  
-    [##_Image|kage@bQ8OXT/btsII1v5RHr/4b56Wet5ivfgRtNV8K7Ba0/img.jpg|CDM|1.3|{"originWidth":1440,"originHeight":193,"style":"alignLeft","width":686}_##]
+-   공식
+    ![공분산공식](/assets/img/cov.jpg)
 -   한계: 각 변수 간의 다른 척도기준이 반영되어 공분산의 크기가 상관성의 정도를 나타내지 못함.
 
 ### 10.2.2 상관계수
 
 -   공분산의 한계를 해결하기 위해 피어슨 상관계수 사용
 -   공식: 공분산을 두 변수가 변하는 전체 정도로 나눠준 것 (-1 <= R <= 1)  
-    
-    ![](https://blog.kakaocdn.net/dn/dUEADv/btsIJF0wvjB/1EXVRN06H6r3sHt5tj6FW0/img.jpg)
+    ![피어슨상관계수](https://blog.kakaocdn.net/dn/dUEADv/btsIJF0wvjB/1EXVRN06H6r3sHt5tj6FW0/img.jpg)
     
 -   상관계수에 따른 해석
     
@@ -63,7 +59,7 @@ stripplot(): 각 관측치의 위치를 직관적으로 표현
 
 ### 10.2.3 공분산과 상관성 분석 실습
 
-```
+```python
 # 산점도 행렬 시각화
 sns.set(font_scale=1.1) ## 축 눈금 설정
 sns.set_style('ticks')
@@ -73,9 +69,9 @@ plot.show()
 
 diag\_kind = 'kde': 동일한 변수의 산점도를 분포로 표현해 주는 기능
 
-[##_Image|kage@bkGVlP/btsIJJoiGFn/YOqbtuq1KJgtxFLu42wLzK/img.jpg|CDM|1.3|{"originWidth":1013,"originHeight":1000,"style":"alignLeft","width":539,"height":532}_##]
+![산점도그래프예시](/assets/img/scatterplot.jpg)
 
-```
+```python
 # 공분산 확인
 df. cov()
 
@@ -86,14 +82,14 @@ df. corr(method = 'pearson')
 cov(), corr() 는 알아서 문자형 변수를 제외하고 계산  
 수치적 의미가 없는 숫자형 변수는 drop() 함수로 사전에 제거하는 것이 좋음.
 
-```
+```python
 # 히트맵 시각화
 sns. heatmap(df.corr(), camp='viridis')
 ```
 
 노란색에 가까울수록 양의 상관관계, 보라색에 가까울수록 음의 상관관계
 
-```
+```python
 # clustermap 히트맵 시각화
 sns.clustermap(df.corr(),
                     annot = True,
@@ -103,7 +99,7 @@ sns.clustermap(df.corr(),
 
 clustermap: 히트맵 + 상관계수, 상관성이 강한 변수들끼리 묶어서 표현해줌
 
-```
+```python
 # 중복 제거 히트맵 시각화
 
 ## 매트릭스의 우측 상단을 모두 True인 1로, 하단을 False인 0으로 변환
@@ -213,6 +209,6 @@ ax.set_title('Wine Quality Correlation', pad = 15)
     4) 제 3사분위: 75%  
     5) 최댓값: 제 3사분위에서 1.5 IQR을 더한 위치
 
-[##_Image|kage@b7ict7/btsIK5Rei7V/TnMxZfiHFWBKsZmqXYg8Nk/img.jpg|CDM|1.3|{"originWidth":1276,"originHeight":1000,"style":"alignLeft","width":342,"height":268}_##]
+![박스플롯예시](/assets/img/boxplot.jpg)
 
 출처: 데이터 분석가가 반드시 알아야 할 모든 것
