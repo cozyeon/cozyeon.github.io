@@ -48,6 +48,7 @@ categories: "머신러닝"
 - Ctrl + Enter -> 코드 셀 실행
 - ESC -> 텍스트 셀 수정 끝내기
 - Enter -> 수정하기
+- Alt + Enter -> 실행 후 새 코드 셀 생성
 - 여러 기능
 ![텍스트셀기능](/assets/img/textcell.jpg)
 ![텍스트셀기능2](/assets/img/textcell2.jpg)
@@ -121,12 +122,13 @@ from sklearn.neighbors import KNeighborsClassifier
 ```  
 -> 사이킷런 패키지에서 k-NN 알고리즘을 구현한 클래스인 KNeighborsClassifier 임포트
 > from ~ import 구문
->>- 파이썬에서 패키지나 모듈 전체를 임포트하지 않고 특정 클래스만 임포트 하고자 할때 사용  
->>- 다음과 같이 클래스 이름을 길게 사용하지 않아도 됨
->>```python  
->> import sklearn  
->> from sklearn.neighbors.KneighborsClassifier()  
->>```
+>-
+>- 파이썬에서 패키지나 모듈 전체를 임포트하지 않고 특정 클래스만 임포트 하고자 할때 사용  
+>- 다음과 같이 클래스 이름을 길게 사용하지 않아도 됨
+>```python  
+> import sklearn  
+> from sklearn.neighbors.KneighborsClassifier()  
+>```
 
 ```python
 kn = KNeighborsClassifier()
