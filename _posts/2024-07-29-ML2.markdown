@@ -1,0 +1,388 @@
+---
+layout: post
+title: "2주차-[혼자 공부하는 머신러닝 + 딥러닝] Chapter2.데이터 다루기"
+date: 2023-07-30
+categories: "머신러닝"
+---
+
+# **2-1. 훈련 세트와 테스트 세트**
+### 지도학습
+- 지도학습은 *훈련 데이터*가 필요함  
+-> *input(데이터)* + target(정답) => training data(훈련 데이터)  
+--> input(데이터)은 여러 특성의 조합으로 구성
+- k-NN은 지도학습에 해당
+
+### 비지도학습
+- target 없이 input만 사용  
+-> 무언가를 맞히기 보다 데이터 파악, 변형
+
+### 훈련 세트와 테스트 세트
+- 머신러닝 알고리즘의 성능을 제대로 평가하려면 훈련 데이터와 평가에 사용할 데이터가 각각 달라야 함.
+- 훈련 세트: 훈련에 사용되는 데이터 / 테스트 세트: 평가에 사용하는 데이터
+- 일반적으로 이미 준비된 데이터 중 일부를 떼어 내어 훈련 세트로 활용
+---
+
+### **'샘플을 섞지 않은 상태에서'** 훈련 세트와 테스트 세트를 구분하여 적용한 생선 분류 모델 
+####  #도미와 빙어 데이터를 파이썬 리스트로 준비
+
+```python
+fish_length = [25.4, 26.3, 26.5, 29.0, 29.0, 29.7, 29.7, 30.0, 30.0, 30.7, 31.0, 31.0,
+                31.5, 32.0, 32.0, 32.0, 33.0, 33.0, 33.5, 33.5, 34.0, 34.0, 34.5, 35.0,
+                35.0, 35.0, 35.0, 36.0, 36.0, 37.0, 38.5, 38.5, 39.5, 41.0, 41.0, 9.8,
+                10.5, 10.6, 11.0, 11.2, 11.3, 11.8, 11.8, 12.0, 12.2, 12.4, 13.0, 14.3, 15.0]
+fish_weight = [242.0, 290.0, 340.0, 363.0, 430.0, 450.0, 500.0, 390.0, 450.0, 500.0, 475.0, 500.0,
+                500.0, 340.0, 600.0, 600.0, 700.0, 700.0, 610.0, 650.0, 575.0, 685.0, 620.0, 680.0,
+                700.0, 725.0, 720.0, 714.0, 850.0, 1000.0, 920.0, 955.0, 925.0, 975.0, 950.0, 6.7,
+                7.5, 7.0, 9.7, 9.8, 8.7, 10.0, 9.9, 9.8, 12.2, 13.4, 12.2, 19.7, 19.9]
+```
+#### #데이터를 2차원 리스트로 변환
+```python
+fish_data = [[l, w] for l, w in zip(fish_length, fish_weight)]
+fish_target = [1]*35 + [0]*14
+```
+> 샘플: 하나의 생선 데이터  
+> 특성: 길이와 무게
+
+#### #모델 객체 생성
+```python
+from sklearn.neighbors import KNeighborsClassifier
+
+kn = KNeighborsClassifier()
+```
+> index / slicing
+>- 
+>- 배열의 위치 / 범위를 지정하여 요소 선택
+>- 슬라이싱을 사용할 때 마지막 인덱스의 원소는 포함되지 않음.
+>```python
+>print(fish_data[4]) # 5번째
+>print(fish_data[0:5]) # 1번째 ~ 5번째
+>print(fish_data[:5]) # 1번째 ~ 5번째
+>print(fish_data[44:]) # 45번째 ~ 끝
+>```
+
+#### #훈련 세트와 테스트 세트 나누기 (**섞지 않은 상태로**)
+```python
+train_input = fish_data[:35]
+train_target = fish_target[:35]
+
+test_input = fish_data[35:]
+test_target = fish_target[35:]
+```
+#### #모델 훈련과 모델 평가
+```python
+kn.fit(train_input, train_target)
+kn.score(test_input, test_target) # 결과: 정확도 0
+```
+---
+### 샘플링 편향
+- 훈련 세트와 테스트 세트에 샘플이 골고루 섞여 있지 않은 상태  
+-> 예시에서 훈련 세트에 도미만 있으므로 무조건 도미라고 분류함.
+
+### 넘파이
+- 파이썬의 대표적인 배열(array) 라이브러리
+- 고차원의 배열을 손쉽게 만들고 조작할 수 있는 간편한 도구를 많이 제공
+- 배열의 시작점이 왼쪽 위
+
+---
+
+### **'무작위로'** 훈련 세트와 테스트 세트를 구분하여 적용한 생선 분류 모델
+
+#### # 넘파이 임포트
+```python
+import numpy as np
+```
+#### # 파이썬 리스트 -> 넘파이 배열
+```python
+input_arr = np.array(fish_data)
+target_arr = np.array(fish_target)
+```
+```python
+print(input_arr) #출력: 배열의 차원 구분하기 쉽도록 행과 열 가지런히 출력
+```
+```python
+print(input_arr.shape)
+```
+-> shape 속성은 (샘플 수(행), 특성 수(열)) 형태로 출력
+
+#### # 배열에서 랜덤하게 샘플 선택
+- 방식1: 배열을 섞은 후에 나누기
+- 방식2: 무작위로 샘플 고르기 -> index를 섞고 개수대로 나누기 (선택한 방식)
+- 주의: input_arr과 target_arr에서 같은 위치는 함께 선택되어야 함.  
+![input,target함께선택](/assets/img/input_target.jpg)
+
+```python
+np.random.seed(42)
+index = np.arange(49)
+np.random.shuffle(index) # index 무작위로 섞임.
+
+print(index)
+```
+-> arrange(N) -> 0부터 N-1까지 1씩 증가하는 배열 만듦.  
+-> shuffle() -> 주어진 배열을 무작위로 섞음. 
+> random seed
+>-
+> 넘파이에서 random 함수는 실행할 때마다 다른 결과를 만듦.  
+> 일정한 결과를 얻으려면 초기에 랜덤 시드를 지정하면 됨.
+
+```python
+train_input = input_arr[index[:35]]
+train_target = target_arr[index[:35]] 
+
+test_input = input_arr[index[35:]]
+test_target = target_arr[index[35:]] 
+
+# train set, test set은 무작위로 섞인 index의 35번째를 기준으로 나뉨
+```
+> 배열 인덱싱
+>-
+> 여러 개의 인덱스로 한 번에 여러 개의 원소 선택
+> ```python
+>print(input_arr[[1,3]]) #출력: 2번째, 4번째 샘플 출력
+>```
+
+#### # 산점도로 훈련 세트 테스트 세트 시각화
+```python
+import matplotlib.pyplot as plt
+
+plt.scatter(train_input[:, 0], train_input[:, 1])
+plt.scatter(test_input[:, 0], test_input[:, 1])
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+#### # 모델 훈련, 평가
+```python
+kn.fit(train_input, train_target)
+kn.score(test_input, test_target)
+kn.predict(test_input)
+test_target
+```
+
+# **2-2. 데이터 전처리**
+### 넘파이로 데이터 준비하기
+
+```python
+fish_length = [25.4, 26.3, 26.5, 29.0, 29.0, 29.7, 29.7, 30.0, 30.0, 30.7, 31.0, 31.0,
+                31.5, 32.0, 32.0, 32.0, 33.0, 33.0, 33.5, 33.5, 34.0, 34.0, 34.5, 35.0,
+                35.0, 35.0, 35.0, 36.0, 36.0, 37.0, 38.5, 38.5, 39.5, 41.0, 41.0, 9.8,
+                10.5, 10.6, 11.0, 11.2, 11.3, 11.8, 11.8, 12.0, 12.2, 12.4, 13.0, 14.3, 15.0]
+fish_weight = [242.0, 290.0, 340.0, 363.0, 430.0, 450.0, 500.0, 390.0, 450.0, 500.0, 475.0, 500.0,
+                500.0, 340.0, 600.0, 600.0, 700.0, 700.0, 610.0, 650.0, 575.0, 685.0, 620.0, 680.0,
+                700.0, 725.0, 720.0, 714.0, 850.0, 1000.0, 920.0, 955.0, 925.0, 975.0, 950.0, 6.7,
+                7.5, 7.0, 9.7, 9.8, 8.7, 10.0, 9.9, 9.8, 12.2, 13.4, 12.2, 19.7, 19.9]
+
+import numpy as np
+```
+#### # 샘플 데이터 생성
+```python
+fish_data = np.column_stack((fish_length, fish_weight))
+```
+ > numpy의 column_stack() 함수
+ >-
+ > 전달받은 리스트를 일렬로 운 다음 차례대로 나란히 연결
+ > ```python
+ > np.column_stack(([1,2,3], [4,5,6])) #출력: (3,2) 크기의 배열
+ >```
+
+#### # 타깃 데이터 생성
+
+```python
+fish_target = np.concatenate((np.ones(35), np.zeros(14)))
+```
+
+> numpy의 ones(), zeros() 함수
+>-
+> 각각 원하는 개수의 1과 0을 채운 배열을 만들어줌
+> ```python
+> print(np.ones(5)) #출력: [1. 1. 1. 1. 1.]
+
+> numpy의 concatenate() 함수
+>-
+> 첫 번째 차원을 따라 배열을 연결   
+> ![column_stack&concatenate](/assets/img/column_stack_concatenate.jpg)
+
+
+### 사이킷런으로 훈련 세트와 테스트 세트 나누기
+
+```python
+from sklearn.model_selection import train_test_split 
+
+train_input, test_input, train_target, test_target = train_test_split(
+    fish_data, fish_target, random_state=42)
+```
+> 사이킷런의 train_test_split() 함수
+>-
+> 전달되는 리스트나 배열을 비율에 맞게 훈련 세트와 테스트 세트로 나누어 줌.  
+> 기본적으로 25%를 테스트 세트로 떼어 냄.
+
+```python
+print(train_input.shape, test_input.shape) #출력: (36, 2) (13,2)
+print(train_target.shape, test_target.shape) #출력: (36,) (13,)
+
+print(test_target) 
+#출력: [1. 0. 0. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1.] -> 샘플링 편향 조금 나타남.
+```
+-> 넘파이 배열의 크기는 파이썬의 튜플로 표현 / 튜플의 원소가 하나면 원소 뒤에 콤마 추가
+
+#### # 샘플링 편향 문제 해결
+
+```python
+train_input, test_input, train_target, test_target = train_test_split(
+    fish_data, fish_target, stratify=fish_target, random_state=42)
+
+print(test_target) #출력: [0. 0. 1. 0. 1. 0. 1. 1. 1. 1. 1. 1. 1.]
+```
+-> stratify 매개변수에 타깃 데이터 전달하면 클래스 비율에 맞게 데이터를 나눔.
+
+### 수상한 도미 한 마리..?
+#### # k-NN 모델 훈련
+```python
+from sklearn.neighbors import KNeighborsClassifier
+
+kn = KNeighborsClassifier()
+kn.fit(train_input, train_target)
+kn.score(test_input, test_target) #출력: 1.0 -> 정확도 100%
+```
+But
+```python
+print(kn.predict([[25, 150]])) 
+#출력: [0.] -> 도미(1)이 아닌 빙어(0)으로 잘못 예측
+```
+#### # 이 샘플을 다른 데이터와 함께 산점도로 시각화
+```python
+import matplotlib.pyplot as plt
+
+plt.scatter(train_input[:,0], train_input[:,1])
+plt.scatter(25, 150, marker='^') 
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+``` 
+-> marker는 매개변수 모양을 지정 / marker='^' 는 삼각형  
+![수상한도미](/assets/img/weird_dommi.jpg) 
+
+#### # 이 샘플의 이웃 데이터들을 다른 데이터와 함께 산점도로 시각화
+```python
+distances, indexes = kn.kneighbors([[25, 150]])
+```
+> KNeighborsClassifier 클래스의 kneighbors() 매서드
+>-
+>- 주어진 샘플에서 가장 가까운 이웃을 찾아 줌.  
+>- 이웃까지의 거리와 이웃 샘플의 인덱스 반환  
+>- n_neighbors의 기본값 5 -> 5개의 이웃 반환
+
+```python
+plt.scatter(train_input[:,0], train_input[:,1])
+plt.scatter(25, 150, marker='^')
+plt.scatter(train_input[indexes,0], train_input[indexes,1], marker='D')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+-> marker='D'는 마름모  
+![수상한도미의이웃](/assets/img/werid_dommi_neigh.jpg)
+
+#### # 이웃 데이터들의 target값과 거리 확인
+```python
+print(train_input[indexes])
+print(train_target[indexes]) 
+# 출력: [[1. 0. 0. 0. 0.]] -> 가장 가까운 생선 4개가 빙어
+
+print(distances)
+# 출력: [[92.~  130.~  130.~  130.~  130.~]]
+```
+-> 그래프에서 보이는 것보다 빙어 데이터들과의 거리가 작게 계산됨.
+
+
+### 기준을 맞춰라
+거리가 실제 값과 다르게 계산된 이유: x축의 범위와 y축의 범위가 다르기 때문.  
+-> x축은 범위가 좁고, y축은 범위가 넓어 y축의 값이 거리에 더 큰 영향을 미침.  
+![wrongscale](/assets/img/wrong_scale.jpg)
+
+#### # x축 범위를 0~1000 으로 지정
+
+```python
+plt.scatter(train_input[:,0], train_input[:,1])
+plt.scatter(25, 150, marker='^')
+plt.scatter(train_input[indexes,0], train_input[indexes,1], marker='D')
+plt.xlim((0, 1000))
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+![scalecontrol](/assets/img/scale_control.jpg)  
+-> x축은 이웃을 찾는 데 크게 영향을 미치지 못하고, y축만 고려 대상이 됨.
+
+>matplotlib의 xlim(), ylim() 함수: x축 범위와 y축 범위 지정
+
+> scale: 값이 놓인 범위
+
+> 데이터 전처리
+>-
+>- 거리 기반 알고리즘들은 특성 값을 일정한 기준으로 맞춰 주어야 함.
+>- 가장 널리 사용하는 방법: **표준점수 (z-score)**
+>>-  각 특성값이 0에서 표준편차의 몇 배만큼 떨어져 있는지를 나타냄
+>>- 공식: (값 - 평균) / 표준편차
+
+
+#### # 평균과 표준편차 계산 
+```python
+mean = np.mean(train_input, axis=0)
+std = np.std(train_input, axis=0)
+
+print(mean, std)
+```
+> numpy의 mean() / std() 함수
+>-
+>- 평균 / 표준편차 계산  
+>- axis=0 -> 행을 따라 각 열의 통계 값 계산
+>- axis=1 -> 열을 따라 각 행의 통계 값 계산
+
+#### # 표준점수 계산
+```python
+train_scaled = (train_input - mean) / std
+```
+> 넘파이의 브로드캐스팅 기능
+>-
+> ![브로드캐스팅](/assets/img/broadcasting.jpg)
+
+#### # 변환한 데이터 산점도로 시각화
+```python
+plt.scatter(train_scaled[:,0], train_scaled[:,1])
+plt.scatter(25, 150, marker='^')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+-> 샘플 [20, 150]의 범위는 변환하지 않았기 때문에 문제 발생
+
+#### # '훈련 세트와 동일한 기준'으로 샘플 변환
+```python
+new = ([25, 150] - mean) / std
+```
+#### # 모델 훈련, 평가
+
+```python
+kn.fit(train_scaled, train_target)
+
+test_scaled = (test_input - mean) / std
+
+kn.score(test_scaled, test_target)
+```
+-> 훈련 후 테스트 세트를 평가할 때, '테스트 세트의 기준'으로 훈련 세트를 변환해야 함.
+
+<!--
+print(kn.predict([new]))
+
+distances, indexes = kn.kneighbors([new])
+
+plt.scatter(train_scaled[:,0], train_scaled[:,1])
+plt.scatter(new[0], new[1], marker='^')
+plt.scatter(train_scaled[indexes,0], train_scaled[indexes,1], marker='D')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+-->
+
+[출처: 혼자 공부하는 머신러닝 + 딥러닝]
