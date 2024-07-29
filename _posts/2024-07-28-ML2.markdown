@@ -1,0 +1,165 @@
+---
+layout: post
+title: "2주차-혼자 공부하는 머신러닝 + 딥러닝 Chapter1.나의 첫 머신러닝"
+date: 2023-07-29
+categories: "머신러닝"
+---
+
+# **1-1. 인공지능과 머신러닝, 딥러닝**
+
+### 인공지능
+- 사람처럼 학습하고 추론할 수 있는 지능을 가진 시스템을 만드는 기술
+- 인공일반지능(Artificial general intelligence) / 강인공지능(Strong AI): 사람과 구분하기 어려운 지능을 가진 컴퓨터 시스템
+- 약인공지능(Weak AI): 사람의 일을 도와주는 보조 역할을 함.
+
+### 머신러닝
+- 자동으로 데이터에서 규칙을 학습하는 알고리즘을 연구하는 분야
+- 인공지능의 하위 분야 중 지능을 구현하기 위한 소프트웨어 담당
+
+> 사이킷런
+>- 대표적인 머신러닝 라이브러리  
+>- 파이썬 API 사용   
+
+### 딥러닝
+- 머신러닝 알고리즘 중 인공 신경망을 기반으로 한 방법들을 통칭함.
+- 인공신경망의 발전에 기여한 요소
+    1) 풍부한 데이터
+    2) 컴퓨터 성능의 향상
+    3) 혁신적인 알고리즘 개발   
+
+>텐서플로
+>- 구글이 공개한 딥러닝 라이브러리   
+>- 인공 신경망 알고리즘 전문   
+>- 파이썬 API 제공
+
+>파이토치
+>- 페이스북이 공개한 딥러닝 라이브러리  
+>- 인공 신경망 알고리즘 전문  
+>- 파이썬 API 제공   
+
+# **1-2. 코랩과 주피터 노트북**
+
+### 구글 코랩
+- 클라우드 기반의 주피터 노트북 개발 환경 (웹 브라우저에서 무료로 파이썬 프로그램을 테스트하고 저장할 수 있는 서비스)
+- 셀: 코드 또는 텍스트의 덩어리, 코랩에서 실행할 수 있는 최소 단위 / 노트북: 코랩 파일
+
+### 셀
+- 텍스트 셀은 HTML과 Markdown 혼용해서 사용 가능
+- Ctrl + Enter -> 코드 셀 실행
+- ESC -> 텍스트 셀 수정 끝내기
+- Enter -> 수정하기
+- 여러 기능
+![텍스트셀기능](/assets/img/textcell.jpg)
+![텍스트셀기능2](/assets/img/textcell2.jpg)
+
+### 노트북
+- 코랩의 프로그램 작성 단위
+- 구글 클라우드의 컴퓨트 엔진에 연결되어 있으며 구글 클라우드의 가상 서버를 사용함.
+- 노트북을 생성하면 자동으로 구글 드라이브의 Colab Notebooks 폴더에 저장됨.
+- 장점: 코드, 실행 결과, 텍스트를 함께 담을 수 있음.
+- 제한 사항: 동시에 사용할 수 있는 구글 클라우드의 가상서버는 최대 5개, 1개 노트북의 최대 실행 시간 12시간
+
+# **1-3. 마켓과 머신러닝**
+
+### k-NN 알고리즘
+
+### k-NN 알고리즘을 이용한 생선 분류 모델
+#### 1. 도미 데이터 준비하기
+ ```python
+ bream_length = [25.4, 26.3, 26.5, 29.0, 29.0, 29.7, 29.7, 30.0, 30.0, 30.7, 31.0, 31.0, 31.5, 32.0, 32.0, 32.0, 33.0, 33.0, 33.5, 33.5, 34.0, 34.0, 34.5, 35.0, 35.0, 35.0, 35.0, 36.0, 36.0, 37.0, 38.5, 38.5, 39.5, 41.0, 41.0]
+bream_weight = [242.0, 290.0, 340.0, 363.0, 430.0, 450.0, 500.0, 390.0, 450.0, 500.0, 475.0, 500.0, 500.0, 340.0, 600.0, 600.0, 700.0, 700.0, 610.0, 650.0, 575.0, 685.0, 620.0, 680.0, 700.0, 725.0, 720.0, 714.0, 850.0, 1000.0, 920.0, 955.0, 925.0, 975.0, 950.0]
+```
+
+```python
+import matplotlib.pyplot as plt
+
+plt.scatter(bream_length, bream_weight)
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+
+#### 2. 빙어 데이터 준비하기
+```python
+smelt_length = [9.8, 10.5, 10.6, 11.0, 11.2, 11.3, 11.8, 11.8, 12.0, 12.2, 12.4, 13.0, 14.3, 15.0]
+smelt_weight = [6.7, 7.5, 7.0, 9.7, 9.8, 8.7, 10.0, 9.9, 9.8, 12.2, 13.4, 12.2, 19.7, 19.9]
+```
+
+```python
+plt.scatter(bream_length, bream_weight)
+plt.scatter(smelt_length, smelt_weight)
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+#### 3. 모든 생선 특성 데이터를 2차원 데이터로 만들기
+- 사이킷런 패키지를 사용하려면 2차원 리스트가 필요
+
+```python
+length = bream_length+smelt_length
+weight = bream_weight+smelt_weight
+
+fish_data = [[l, w] for l, w in zip(length, weight)]
+print(fish_data)
+```
+-> zip() 함수와 리스트 내포 구문을 통해 2차원 리스트를 만듦.  
+-> zip() 함수는 나열된 리스트 각각에서 하나씩 원소를 꺼내 반환
+
+#### 4. 정답 데이터 준비
+- 머신러닝 알고리즘이 생선의 특성을 통해 생선을 구분하는 규칙을 찾게 하려면 각 특성에 대한 정답을 알려주어야 함.
+- 2개를 구분하는 경우 찾으려는 대상을 1로 놓고, 그 외에는 0으로 놓음.
+
+```python
+fish_target = [1]*35 + [0]*14
+print(fish_target)
+```
+
+#### 5. 도미를 찾기 위한 기준 학습 (**훈련**)
+
+```python
+from sklearn.neighbors import KNeighborsClassifier
+```  
+-> 사이킷런 패키지에서 k-NN 알고리즘을 구현한 클래스인 KNeighborsClassifier 임포트
+> from ~ import 구문
+>>- 파이썬에서 패키지나 모듈 전체를 임포트하지 않고 특정 클래스만 임포트 하고자 할때 사용  
+>>- 다음과 같이 클래스 이름을 길게 사용하지 않아도 됨
+>>```python  
+>> import sklearn  
+>> from sklearn.neighbors.KneighborsClassifier()  
+>>```
+
+```python
+kn = KNeighborsClassifier()
+kn.fit(fish_data, fish_target)
+```
+-> 사이킷런의 fit() 매서드는 특성데이터와 정답데이터를 입력 받아 타겟을 찾기 위한 기준을 학습시키는 역할을 함.
+
+
+#### 6. 모델 평가
+
+```python
+kn.score(fish_data, fish_target)
+```
+-> 사이킷런의 score() 매서드는 0~1 값으로 정답 비율을 반환하여 모델 평가
+
+<!--
+```python
+plt.scatter(bream_length, bream_weight)
+plt.scatter(smelt_length, smelt_weight)
+plt.scatter(30, 600, marker='^')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+
+kn.predict([[30, 600]])
+
+print(kn._fit_X)
+
+print(kn._y)
+```
+-->
+
+
+
+
+
