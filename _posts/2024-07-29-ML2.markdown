@@ -280,7 +280,7 @@ plt.ylabel('weight')
 plt.show()
 ```
 -> marker='D'는 마름모  
-![수상한도미의이웃](/assets/img/werid_dommi_neigh.jpg)
+![수상한도미의이웃](/assets/img/weird_dommi_neigh.jpg)
 
 #### # 이웃 데이터들의 target값과 거리 확인
 ```python
