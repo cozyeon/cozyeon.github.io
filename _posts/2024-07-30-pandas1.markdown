@@ -21,7 +21,7 @@ categories: "판다스"
 -> index는 데이터 주소의 역할을 함.
 
 #### # 딕셔너리 -> 시리즈 변환
-```
+```python
 pandas.Series(딕셔너리)
 ```
  
@@ -33,17 +33,17 @@ pandas.Series(딕셔너리)
     - 인덱스 이름 or 인덱스 라벨
 
 #### # 인덱스 배열만 선택
-```
+```python
 Series객체.index
 ```
 
 #### # 데이터 값 배열만 선택
-```
+```python
 Series객체.values
 ```
 
 #### # 리스트 -> 시리즈 변환
-```
+```python
 pandas.Series(리스트)
 ```
 -> 인덱스로 변환될 값이 없으므로 별도로 정의하지 않으면 디폴트로 정수형 위치 인덱스 (0, 1, 2, ...) 자동 지정
@@ -55,7 +55,7 @@ pandas.Series(리스트)
     - 인덱스 이름: [] 안에 '이름' or "이름" 입력
 
 #### # 투플 -> 시리즈 변환 (인덱스 이름 별도로 지정)
-```
+```python
 import pandas as pd
 
 tup_data = ('영인', '2010-05-01', '여', True)
@@ -63,18 +63,26 @@ sr = pd.Series(tup_data, index=['이름', '생년월일', '성별', '학생여�
 ```
 
 #### # 원소 1개 선택
-```
+```python
 print(sr[0]) #출력: 영인
 print(sr['이름']) #출력: 영인
 ```
 
 #### # 원소 여러개 선택
-```
+-> 인덱스 리스트 활용
+```python
+print(sr[[1,2]])
+print('\n')
+print(sr[['생년월일','성별']])
 ```
 
 #### # 인덱스 범위를 지정하여 원소 선택
+```python
+print(sr[1:2])
+print('\n')
+print(sr['생년월일' : '성별'])
 ```
-```
+
 ## 1-2-2. 데이터프레임
 - 2차원 배열  
 -> 여러개의 열벡터(시리즈)들이 같은 행 인덱스를 기준으로 줄지어 결합된 2차원 벡터  
@@ -85,7 +93,7 @@ print(sr['이름']) #출력: 영인
 -> 행 인덱스 / 열 이름
 
 #### # 딕셔너리 -> 데이터프레임 변환
-```
+```python
 pandas.DataFrame(딕셔너리 객체)
 ```
 -> 리스트를 원소로 갖는 딕셔너리를 함수의 인자로 전달  
@@ -95,10 +103,10 @@ pandas.DataFrame(딕셔너리 객체)
 ![딕셔너리->데이터프레임](/assets/img/dic_dataframe.jpg)
 
 #### # 행 인덱스, 열 이름 설정
-```
+```python
 pandas.DataFrame (2차원 배열, index = 행 인덱스 배열, columns = 열 이름 배열)
 ```
-```
+```python
 import pandas as pd
 
 df = pd.DataFrame ([15, '남', '덕영중'], [17, '여', '수리중']),
@@ -112,19 +120,19 @@ print(df)
 ```
 
 #### # 전체 행 인덱스와 열 이름 변경
-```
+```python
 DataFrame 객체.index = 새로운 행 인덱스 배열
 DataFrame 객체.columns = 새로운 열 이름 배열
 ```
 
 #### # 일부 행 인덱스와 열 이름 변경
-```
+```python
 DataFrame 객체.rename(index={기존 인덱스:새 인덱스, ...}) #행 인덱스 변경
 DataFrame 객체.rename(columns={기존 이름:새 이름, ...}) #열 이름 변경
 ```
 
 #### # 행/열 삭제
-```
+```python
 DataFrame 객체.drop(행 인덱스 또는 배열, axis=0)
 DataFrame 객체.drop(열 이름 또는 배열, axis=1)
 ```
@@ -137,20 +145,20 @@ DataFrame 객체.drop(열 이름 또는 배열, axis=1)
 
 
 #### # 열 선택
-```
+```python
 DataFrame 객체["열 이름"] 또는 DataFrame 객체.열 이름 #열 1개 선택
 DataFrame 객체[ [열1, 열2, ..., 열n]] #열 n개 선택
 ```
 
 > 범위 슬라이싱 활용 (슬라이싱 간격 지정)
 >-
->```
+>```python
 >DataFrame 객체.iloc[시작 인덱스 : 끝 인덱스 : 슬라이싱 간격] #iloc 인덱서 예시
 >```
 
 #### # 원소 선택
 데이터프레임의 행 인덱스와 열 이름을 [행,열] 형식의 2차원 좌표로 입력하여 원소 위치 지정
-```
+```python
 DataFrame 객체.loc[행 인덱스, 열 이름]
 DataFrame 객체.iloc[행 번호, 열 번호]
 ```
@@ -158,48 +166,91 @@ DataFrame 객체.iloc[행 번호, 열 번호]
 -> 2개 이상의 행, 2개 이상의 열 선택 => 데이터프레임 객체 반환
 
 #### # 열 추가
-```
+```python
 DataFrame 객체 ['추가하려는 열 이름'] = 데이터 값
 ```
 
 #### # 행 추가
-```
+```python
 DataFrame.loc['새로운 행 이름'] = 데이터 값
 ```
 #### # 원소 값 변경
-```
+```python
 DataFrame 객체의 일부분 또는 원소를 선택 = 새로운 값
 ```
 #### # 행, 열의 위치 바꾸기
-```
+```python
 DataFrame 객체.transpose()
 DataFrame 객체.T
 ```
 
 ## 1-2-3. 인덱스 활용
 #### # 특정 열을 행 인덱스로 설정
-```
+```python
 DataFrame 객체.set_index(['열 이름'] 또는 '열 이름')
 ```
 -> 원본 데이터프레임을 바꾸지 않고 새로운 데이터프레임 객체 반환
 
 #### # 행 인덱스 재배열
-```
+```python
 DataFrame 객체.reindex(새로운 인덱스 배열)
 ```
 -> 기존 데이터프레임 바꾸지 않고 새로운 데이터프레임 객체 반환
 
 #### # 행 인덱스 초기화
-```
+```python
 DataFrame 객체.reset_index() #정수형 위치 인덱스로 초기화
 ```
 -> 기존 데이터프레임 바꾸지 않고 새로운 데이터프레임 객체 반환
 
 #### # 행 인덱스를 기준으로 데이터프레임 정렬
-```
+```python
 DataFrame 객체.sort_index()
 ```
 -> ascending 옵션을 사용하여 오름차순 또는 내림차순 설정  
 --> ascending=False 는 내림차순, ascending=True는 오름차순
 
 #### # 특정 열의 데이터 값을 기준으로 데이터프레임 정렬
+```python
+DataFrame 객체.sort_values() #열 기준 정렬
+```
+
+## 1-2-4. 산술연산
+### 시리즈 연산
+#### # 시리즈 VS 숫자
+```python
+Series 객체 + 연산자(+, -, *, /) + 숫자
+```
+#### # 시리즈 VS 시리즈
+```python
+Series1 + 연산자(+, -, *, / ) + Series2
+```
+-> 같은 인덱스를 찾아 정렬한 후 같은 인덱스의 값끼리 연산
+-> 인덱스끼리 짞을 지을 수 없는 경우 => NaN
+-> 인덱스끼리 모두 대응되더라도 한 쪽 데이터 값이 NaN인 경우 => NaN
+
+#### # 연산 메소드
+연산 결과가 NaN이 되는 상황을 피하려면 연산 메소드에 fill_value 옵션 설정
+```python
+Series1.add(Series2, fill_value=0) # 시리즈+시리즈
+```
+-> NaN 값을 0으로 채워서 계산
+
+### 데이터프레임 연산
+#### # 데이터프레임 VS 숫자
+```python
+DataFrame 객체 + 연산자(+, -, *, /) + 숫자
+```
+
+#### # 데이터프레임 VS 데이터프레임
+```python
+DataFrame1 + 연산자(+, -, *, /) + DataFrame2
+```
+-> NaN이 포함된 경우 연산 결과 NaN
+
+
+
+
+
+
+
