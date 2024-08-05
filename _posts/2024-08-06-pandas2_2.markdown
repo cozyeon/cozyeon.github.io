@@ -1,0 +1,238 @@
+---
+layout: post
+title: "[판다스 데이터 분석] Part3. 데이터 살펴보기
+date: 2023-08-06
+categories: "판다스"
+---
+
+# **1. 데이터프레임의 구조**
+### **1-1. 데이터 내용 미리보기**
+#### # 앞부분 미리보기
+```python
+DataFrame 객체.head(n)
+```
+#### # 뒷부분 미리보기
+```python
+DateFrame 객체.tail(n)
+```
+
+### **1-2. 데이터 요약 정보 확인하기**
+#### # 데이터프레임의 크기(행, 열)
+```python
+DataFrame 객체.shape
+```
+
+#### # 데이터프레임의 기본 정보
+```
+DataFrame 객체.info()
+```
+-> 첫 행에 데이터프레임 클래스 유형인 'pandas.core.frame.DataFrame' 출력   
+-> 행 개수, 인덱스 출력 / 열 개수 출력   
+-> 각 열의 이름, 데이터 개수, 자료형 출력   
+-> 총 자료형 종류별 개수와 메모리 사용량 출력
+
+> 판다스 자료형
+>-
+>![판다스자료형](/assets/img/pandas_data_type.jpg)
+
+#### # 데이터프레임의 기술 통계 정보 요약
+```python
+DataFrame 객체.describe()
+DataFrame 객체.describe(include='all') # 산술 데이터가 아닌 열에 대한 정보 포함 
+```
+-> 산술 데이터를 갖는 열에 대한 주요 기술 통계 정보 (평균, 표준편차, 최대값, 최소값, 중간값 등) 요약하여 출력   
+-> include='all' 옵션 추가하면 문자열 데이터 들어있는 열의 고유값 개수(unique), 최빈값(top), 빈도수(freq) 정보 추가/ 산술 데이터 열에 대해서는 이 세가지 항목에 NaN값 표시
+
+### **1-3. 데이터 개수 확인**
+#### # 각 열의 데이터 개수
+```python
+DataFrame 객체.count()
+```
+-> 단, 유효한 값의 개수만을 계산
+
+#### # 각 열의 고유값 개수
+```python
+DataFrame 객체["열 이름"].value_counts()
+```
+# **2. 통계 함수 적용**
+### **2-1. 평균값**
+#### # 모든 열의 평균값
+```python
+Dataframe 객체.mean()
+```
+#### # 특정 열의 평균값
+```python
+Dataframe 객체["열 이름"].mean()
+```
+
+### **2-2. 중간값**
+#### # 모든 열의 중간값
+```python
+Dataframe 객체.median()
+```
+#### # 특정 열의 중간값
+```python
+Dataframe 객체["열 이름"].median()
+```
+### **2-3. 최대값**
+#### # 모든 열의 최대값
+```python
+Dataframe 객체.max()
+```
+#### # 특정 열의 최대값
+```python
+Dataframe 객체["열 이름"].max()
+```
+-> 산술 데이터 열은 최대값 반환   
+-> 문자열 데이터 열은 문자열을 ASCII 숫자로 변환하여 크고 작음 비교   
+-> 산술 데이터와 문자열 데이터가 섞인 경우 다른 숫자 값까지 전부 문자열로 인식
+
+
+### **2-4. 최소값**
+#### # 모든 열의 최소값
+```python
+Dataframe 객체.min()
+```
+#### # 특정 열의 최소값
+```python
+Dataframe 객체["열 이름"].min()
+```
+-> 산술 데이터 열은 최소값 반환   
+-> 문자열 데이터 열은 문자열을 ASCII 숫자로 변환하여 크고 작음 비교   
+-> 산술 데이터와 문자열 데이터가 섞인 경우 다른 숫자 값까지 전부 문자열로 인식
+
+### **2-5. 표준편차**
+#### # 모든 열의 표준편차
+```python
+Dataframe 객체. std()
+```
+#### # 특정 행의 표준편차
+```python
+Dataframe 객체["열 이름"].std()
+```
+-> 문자열 데이터 열에 대해서는 계산하지 않음.
+
+### **2-6. 상관계수**
+#### # 모든 열의 상관계수
+```python
+Dataframe 객체.corr()
+```
+-> 산술 데이터를 갖는 모든 열에 대하여 2개씩 짝을 짓고, 각각의 경우에 대하여 계산 (문자열 데이터 열은 포함하지 않음.)
+#### # 특정 열의 상관계수
+```python
+Dataframe 객체[열 이름의 리스트].corr()
+```
+# **3. 판다스 내장 그래프 도구 활용**
+- 그래프를 이용한 시각화 방법은 데이터의 분포와 패턴 파악에 큰 도움이 됨.
+- 판다스는 Matplotlib 라이브러리의 기능 일부 내장 => 별도로 임포트 필요 X
+- 판다스 내장 plot() 메소드 그래프 종류   
+![판다스내장그래프종류](/assets/img/pandas_graph.jpg)
+
+#### # 선 그래프
+```python
+Dataframe 객체.plot()
+```
+-> 별다른 옵션 추가하지 않으면 기본적인 선 그래프를 그림.
+
+```python
+import pandas as pd
+
+df = pd.read_excel('./남북한발전전력량.xlsx', engine='openpyxl')  # 데이터프레임 변환 
+
+df_ns = df.iloc[[0, 5], 3:]            # 남한, 북한 발전량 합계 데이터만 추출
+df_ns.index = ['South','North']        # 행 인덱스 변경
+df_ns.columns = df_ns.columns.map(int) # 열 이름의 자료형을 정수형으로 변경
+print(df_ns.head())
+print('\n')
+
+# 선 그래프 그리기
+df_ns.plot()
+
+# 행, 열 전치하여 다시 그리기
+tdf_ns = df_ns.T
+print(tdf_ns.head())
+print('\n')
+tdf_ns.plot()
+```
+
+#### # 막대 그래프
+```python
+DataFrame 객체.plot(kind='bar')
+```
+```python
+import pandas as pd
+
+df = pd.read_excel('./남북한발전전력량.xlsx', engine='openpyxl')  # 데이터프레임 변환 
+
+df_ns = df.iloc[[0, 5], 3:]            # 남한, 북한 발전량 합계 데이터만 추출
+df_ns.index = ['South','North']        # 행 인덱스 변경
+df_ns.columns = df_ns.columns.map(int) # 열 이름의 자료형을 정수형으로 변경
+
+# 행, 열 전치하여 막대 그래프 그리기
+tdf_ns = df_ns.T
+print(tdf_ns.head())
+print('\n')
+tdf_ns.plot(kind='bar')
+```
+#### # 히스토그램
+```python
+DataFrame 객체.plot(kind='hist')
+```
+-> x축: 일정한 간격을 갖는 여러 구간으로 나눔.   
+-> y축: x축 구간에 속하는 y축 데이터의 수를 빈도로 나타냄. 
+
+```python
+import pandas as pd
+
+df = pd.read_excel('./남북한발전전력량.xlsx', engine='openpyxl')  # 데이터프레임 변환 
+
+df_ns = df.iloc[[0, 5], 3:]            # 남한, 북한 발전량 합계 데이터만 추출
+df_ns.index = ['South','North']        # 행 인덱스 변경
+df_ns.columns = df_ns.columns.map(int) # 열 이름의 자료형을 정수형으로 변경
+
+# 행, 열 전치하여 히스토그램 그리기
+tdf_ns = df_ns.T
+tdf_ns.plot(kind='hist')
+```
+
+#### # 산점도
+```python
+DataFrame 객체.plot(x='변수1', y='변수2', kind='scatter')
+```
+-> 두 변수의 관계를 나타냄.
+```python
+import pandas as pd
+
+# read_csv() 함수로 df 생성
+df = pd.read_csv('./auto-mpg.csv', header=None)
+
+# 열 이름을 지정
+df.columns = ['mpg','cylinders','displacement','horsepower','weight',
+              'acceleration','model year','origin','name']
+
+# 2개의 열을 선택하여 산점도 그리기
+df.plot(x='weight',y='mpg', kind='scatter')
+```
+
+
+#### # 박스 플롯
+```python
+DataFrame 객체[['변수1', '변수2']].plot(kind='box')
+```
+-> 특정 변수의 데이터 분포와 분산 정도에 대한 정보 제공
+
+```python
+import pandas as pd
+
+# read_csv() 함수로 df 생성
+df = pd.read_csv('./auto-mpg.csv', header=None)
+
+# 열 이름을 지정
+df.columns = ['mpg','cylinders','displacement','horsepower','weight',
+              'acceleration','model year','origin','name']
+
+# 열을 선택하여 박스 플롯 그리기
+df[['mpg','cylinders']].plot(kind='box')
+```
+
+[출처: 파이썬 머신러닝 판다스 데이터분석]
