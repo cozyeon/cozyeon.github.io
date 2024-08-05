@@ -1,0 +1,294 @@
+---
+layout: post
+title: "[판다스 데이터 분석] Part2. 판다스 입문"
+date: 2023-08-06
+categories: "판다스"
+---
+
+# **1. 외부 파일 읽어오기**
+- 어떤 파일이든 판다스 객체인 데이터프레임으로 변환되고 나면 판다스의 모든 함수와 기능 자유롭게 사용 가능
+- 데이터프레임을 다양한 유형의 파일로 저장 가능
+
+### **1-1. CSV 파일**
+- 쉼표로 열 구분, 줄바꿈으로 행 구분
+- CSV 파일에 따라 쉼표 대신 탭이나 공백으로 텍스트 구분하기도 함.  
+-> 구분자 옵션을 알맞게 입력해야 함.
+- read_csv() 함수의 옵션:   
+    1) path: 파일의 위치(파일명 포함), URL
+    2) sep / delimiter: 텍스트 데이터를 필드별로 구분하는 문자
+    3) header: 열 이름으로 사용될 행의 번호(기본값 0), header가 없고 첫 행부터 데이터가 있는 경우 None으로 지정 가능
+    4) index_col: 행 인덱스로 사용할 열의 번호 또는 열의 이름
+    5) names: 열 이름으로 사용할 문자열의 리스트
+    6) skiprows: 처음 몇 줄을 skip 할 것인지 설정(숫자 입력) / skip하려는 행의 번호를 담은 리스트로 설정 가능
+    7) parse_dates: 날짜 텍스트를 datetime64로 변환할 것인지 설정(기본값 False)
+    8) skip_footer: 마지막 몇 줄을 skip할 것인지 설정 (숫자 입력)
+    9) encoding: 텍스트 인코딩 종류를 지정
+
+#### # CSV파일 -> 데이터프레임
+```python
+pandas.read_csv("파일 경로(이름)") 
+```
+
+#### # header 옵션
+: 데이터 프레임의 열 이름으로 사용할 행 지정
+```python
+pandas.read_csv("file", header=0) 
+pandas.read_csv("file", header=None) # 첫 행의 데이터가 열 이름이 됨.
+```
+
+#### # index_col 옵션
+: 행 주소가 되는 열을 지정
+```python
+pandas.read_csv("file", index_col='c0') 
+pandas.read_csv("file", index_col=False) # 행 인덱스는 정수 0, 1, 2... 자동으로 지정
+```
+
+### **1-2. Excel 파일**
+- 확장자: .xlsx
+- 엑셀 파일의 행과 열은 데이터프레임의 행과 열로 일대일 대응
+- 실행 환경에 따라 Excel 파일 데이터 추출 지원하는 xlrd 라이브러리와 openpyxl 라이브러리 설치 필요할 수도   
+-> xlsx 확장자 갖는 경우 engine 옵션 'openpyxl' / xls 확장자 갖는 경우 engine 옵션 'xlrd'
+- read_csv() 함수의 옵션 대부분 그대로 사용
+
+```python
+import pandas as pd
+
+df1 = pd.read_excel("file", engine= 'openpyxl') # header=0 (default)
+df2 = pd.read_excel("file", engine= 'openpyxl', header=None) # header 옵션 미적용
+```
+### **1-3. JSON 파일**
+- 확장자: .json
+- 데이터 공유를 목적으로 개발된 특수한 파일 형식
+- "key : value" 구조
+```python
+import pandas as pd
+
+df = pd.read_json('file')
+
+print (df.index) # 출력: Index(['Numpy', 'matplotlib', 'pandas'], dtype='object)
+```
+
+# **2. 웹에서 가져오기**
+### **2-1. HTML 웹 페이지에서 표 속성 가져오기**
+#### # HTML 표 속성 읽기
+```python
+pandas.read_html("URL" 또는 "HTML")
+```
+-> HTML 웹 페이지에 있는 < table > 태그에서 표 형식의 데이터를 모두 찾아 데이터프레임으로 변환   
+-> 여러 개의 데이터프레임을 원소로 갖는 리스트 반환
+
+```python
+import pandas as pd
+
+# HTML 파일 경로 or 웹 페이지 주소를 url 변수에 저장
+url ='./sample.html'
+
+# HTML 웹페이지의 표(table)를 가져와서 데이터프레임으로 변환 
+tables = pd.read_html(url)
+
+# 표(table)의 개수 확인
+print(len(tables))
+print('\n')
+
+# tables 리스트의 원소를 iteration하면서 각각 화면 출력
+for i in range(len(tables)):
+    print("tables[%s]" % i)
+    print(tables[i])
+    print('\n')
+
+# 파이썬 패키지 정보가 들어 있는 두 번째 데이터프레임을 선택하여 df 변수에 저장
+df = tables[1] 
+
+# 'name' 열을 인덱스로 지정
+df.set_index(['name'], inplace=True)
+print(df)
+```
+
+### **2-2. 웹 스크래핑**
+- 웹 스크래핑 도구로 스크래핑한 내용을 파이썬 리스트, 딕셔너리 등으로 정리 -> DataFrame() 함수에 전달하여 데이터프레임으로 변환
+
+```python
+# 라이브러리 불러오기
+from bs4 import BeautifulSoup
+import requests
+import re
+import pandas as pd
+
+# 위키피디아 미국 ETF 웹 페이지에서 필요한 정보를 스크래핑하여 딕셔너리 형태로 변수 etfs에 저장
+url = "https://en.wikipedia.org/wiki/List_of_American_exchange-traded_funds"
+resp = requests.get(url)
+soup = BeautifulSoup(resp.text, 'lxml')   
+rows = soup.select('div > ul > li')
+    
+etfs = {}
+for row in rows:
+    
+    try:
+        etf_name = re.findall('^(.*) \(NYSE', row.text)
+        etf_market = re.findall('\((.*)\|', row.text)
+        etf_ticker = re.findall('NYSE Arca\|(.*)\)', row.text)
+        
+        if (len(etf_ticker) > 0) & (len(etf_market) > 0) & (len(etf_name) > 0):
+
+            #리스트를 원소로 갖는 딕셔너리를 정의
+            etfs[etf_ticker[0]] = [etf_market[0], etf_name[0]] 
+
+    except AttributeError as err:
+        pass    
+
+# etfs 딕셔너리 출력
+print(etfs)
+print('\n')
+
+# etfs 딕셔너리를 데이터프레임으로 변환
+df = pd.DataFrame(etfs)
+print(df)
+```
+
+# **3. API 활용하여 데이터 수집하기**
+- 대부분의 API는 판다스에서 쉽게 읽어올 수 있는 파일 형식 지원
+
+
+#### # ex. 구글 지오코딩 API
+-> 지오코딩 API 호출 결과   
+![지오코딩](/assets/img/geocoding.jpg)   
+
+```python
+# 라이브러리 가져오기
+import googlemaps
+import pandas as pd
+
+# my_key = "----발급받은 API 키를 입력-----"
+
+# 구글맵스 객체 생성하기
+maps = googlemaps.Client(key=my_key)  # my key값 입력
+
+lat = []  #위도
+lng = []  #경도
+
+# 장소(또는 주소) 리스트
+places = ["서울시청", "국립국악원", "해운대해수욕장"]
+
+i=0
+for place in places:   
+    i = i + 1
+    try:
+        print(i, place)
+        # 지오코딩 API 결과값 호출하여 geo_location 변수에 저장
+        geo_location = maps.geocode(place)[0].get('geometry')
+        lat.append(geo_location['location']['lat'])
+        lng.append(geo_location['location']['lng'])
+        
+    except:
+        lat.append('')
+        lng.append('')
+        print(i)
+
+# 데이터프레임으로 변환하기
+df = pd.DataFrame({'위도':lat, '경도':lng}, index=places)
+print('\n')
+print(df)
+```
+
+# **4. 데이터 저장하기**
+### **4-1. CSV 파일로 저장**
+-> to_csv() 메소드 적용
+
+```python
+import pandas as pd
+
+# 판다스 DataFrame() 함수로 데이터프레임 변환. 변수 df에 저장 
+data = {'name' : [ 'Jerry', 'Riah', 'Paul'],
+        'algol' : [ "A", "A+", "B"],
+        'basic' : [ "C", "B", "B+"],
+        'c++' : [ "B+", "C", "C+"],
+        }
+
+df = pd.DataFrame(data)
+df.set_index('name', inplace=True)   #name 열을 인덱스로 지정
+print(df)
+
+# to_csv() 메소드를 사용하여 CSV 파일로 내보내기
+# 현재 디렉토리에 파열명은 df_sample.csv로 저장
+df.to_csv("./df_sample.csv")
+```
+
+### **4-2. JSON 파일로 저장**
+-> to_json() 메소드 적용
+
+```python
+import pandas as pd
+
+# 판다스 DataFrame() 함수로 데이터프레임 변환. 변수 df에 저장 
+data = {'name' : [ 'Jerry', 'Riah', 'Paul'],
+        'algol' : [ "A", "A+", "B"],
+        'basic' : [ "C", "B", "B+"],
+        'c++' : [ "B+", "C", "C+"],
+        }
+
+df = pd.DataFrame(data)
+df.set_index('name', inplace=True)   #name 열을 인덱스로 지정
+print(df)
+
+# to_json() 메소드를 사용하여 JSON 파일로 내보내기
+# 현재 디렉토리에 파열명은 df_sample.json로 저장
+df.to_json("./df_sample.json")
+```
+### **4-3. Excel 파일로 저장**
+-> to_excel() 메소드 적용   
+--> 단, openpyxl 라이브러리 사전에 설치 (아나콘다에서는 기본 제공)
+
+```python
+import pandas as pd
+
+# 판다스 DataFrame() 함수로 데이터프레임 변환. 변수 df에 저장 
+data = {'name' : [ 'Jerry', 'Riah', 'Paul'],
+        'algol' : [ "A", "A+", "B"],
+        'basic' : [ "C", "B", "B+"],
+        'c++' : [ "B+", "C", "C+"],
+        }
+
+df = pd.DataFrame(data)
+df.set_index('name', inplace=True)   #name 열을 인덱스로 지정
+print(df)
+
+# to_excel() 메소드를 사용하여 엑셀 파일로 내보내기
+# 현재 디렉토리에 파열명은 df_sample.xlsx로 저장
+df.to_excel("./df_sample.xlsx")
+```
+
+### **4-4. 여러 개의 데이터프레임을 하나의 Excel 파일로 저장**
+-> to_excel() 메소드를 적용할 때 삽입하려는 Excel 파일을 인자로 전달하고, sheet_name 옵션에 Excel 파일의 시트 이름을 입력
+
+```python 
+import pandas as pd
+
+# 판다스 DataFrame() 함수로 데이터프레임 변환. 변수 df1, df2에 저장 
+data1 = {'name' : [ 'Jerry', 'Riah', 'Paul'],
+         'algol' : [ "A", "A+", "B"],
+         'basic' : [ "C", "B", "B+"],
+          'c++' : [ "B+", "C", "C+"]}
+
+data2 = {'c0':[1,2,3], 
+         'c1':[4,5,6], 
+         'c2':[7,8,9], 
+         'c3':[10,11,12], 
+         'c4':[13,14,15]}
+
+df1 = pd.DataFrame(data1)
+df1.set_index('name', inplace=True)      #name 열을 인덱스로 지정
+print(df1)
+print('\n')
+
+df2 = pd.DataFrame(data2)
+df2.set_index('c0', inplace=True)        #c0 열을 인덱스로 지정
+print(df2)
+
+# df1을 'sheet1'으로, df2를 'sheet2'로 저장 
+# 현재 디렉토리에 엑셀파일명 "df_excelwriter.xlsx" 로 저장
+writer = pd.ExcelWriter("./df_excelwriter.xlsx") #ExcelWriter() 함수: Excel 파일 생성
+df1.to_excel(writer, sheet_name="sheet1")
+df2.to_excel(writer, sheet_name="sheet2")
+writer.save()
+```
+[출처: 파이썬 머신러닝 판다스 데이터분석]
