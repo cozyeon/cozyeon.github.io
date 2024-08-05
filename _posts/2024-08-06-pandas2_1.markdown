@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[판다스 데이터 분석] Part2. 판다스 입문"
+title: "[판다스 데이터 분석] Part2. 데이터 입출력"
 date: 2023-08-06
 categories: "판다스"
 ---
