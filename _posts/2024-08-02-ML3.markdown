@@ -130,29 +130,6 @@ print(knr.score(train_input, train_target)) # 출력: 0.98...
 print(knr.score(test_input, test_target)) # 출력: 0.97...
 ```
 
-#### # 확인문제
-```python
-# k-최근접 이웃 회귀 객체를 만듭니다
-knr = KNeighborsRegressor()
-# 5에서 45까지 x 좌표를 만듭니다
-x = np.arange(5, 45).reshape(-1, 1)
-
-# n = 1, 5, 10일 때 예측 결과를 그래프로 그립니다.
-for n in [1, 5, 10]:
-    # 모델 훈련
-    knr.n_neighbors = n
-    knr.fit(train_input, train_target)
-    # 지정한 범위 x에 대한 예측 구하기
-    prediction = knr.predict(x)
-    # 훈련 세트와 예측 결과 그래프 그리기
-    plt.scatter(train_input, train_target)
-    plt.plot(x, prediction)
-    plt.title('n_neighbors = {}'.format(n))
-    plt.xlabel('length')
-    plt.ylabel('weight')
-    plt.show()
-```
-
 
 # **3-2. 선형 회귀**
 ### k-최근접 이웃의 한계
@@ -634,3 +611,6 @@ print(np.sum(lasso.coef_ == 0)) # 출력: 40
 
 -> 넘파이 배열에 비교 연산자 적용하면 각 원소는 True/False  
 -->  마치 비교 연산자에 맞는 원소 개수를 헤어리는 효과를 냄.
+
+
+[출처: 혼자 공부하는 머신러닝 + 딥러닝]
