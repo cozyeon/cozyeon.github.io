@@ -1,0 +1,636 @@
+---
+layout: post
+title: "[혼자 공부하는 머신러닝 + 딥러닝] Chapter3. 회귀 알고리즘과 모델 규제"
+date: 2023-08-05
+categories: "머신러닝"
+---
+
+# **3-1. 최근접 이웃 회귀**
+### <지도 학습 알고리즘>
+- 분류 vs 회귀
+    - 분류: 샘플을 몇 개의 클래스 중 하나로 분류
+    - 회귀: 임의의 어떤 숫자를 예측
+
+### <k-최근접 이웃 회귀>
+- k-최근접 이웃 알고리즘은 분류, 회귀 모두 가능
+- 예측하려는 샘플에 가장 가까운 샘플 k개 선택 -> 이 샘플들의 수치의 평균을 구함.
+
+### <농어의 길이로 무게 예측하기>
+#### # 데이터 준비
+```python
+import numpy as np
+perch_length = np.array(
+    [8.4, 13.7, 15.0, 16.2, 17.4, 18.0, 18.7, 19.0, 19.6, 20.0,
+     21.0, 21.0, 21.0, 21.3, 22.0, 22.0, 22.0, 22.0, 22.0, 22.5,
+     22.5, 22.7, 23.0, 23.5, 24.0, 24.0, 24.6, 25.0, 25.6, 26.5,
+     27.3, 27.5, 27.5, 27.5, 28.0, 28.7, 30.0, 32.8, 34.5, 35.0,
+     36.5, 36.0, 37.0, 37.0, 39.0, 39.0, 39.0, 40.0, 40.0, 40.0,
+     40.0, 42.0, 43.0, 43.0, 43.5, 44.0]
+     )
+perch_weight = np.array(
+    [5.9, 32.0, 40.0, 51.5, 70.0, 100.0, 78.0, 80.0, 85.0, 85.0,
+     110.0, 115.0, 125.0, 130.0, 120.0, 120.0, 130.0, 135.0, 110.0,
+     130.0, 150.0, 145.0, 150.0, 170.0, 225.0, 145.0, 188.0, 180.0,
+     197.0, 218.0, 300.0, 260.0, 265.0, 250.0, 250.0, 300.0, 320.0,
+     514.0, 556.0, 840.0, 685.0, 700.0, 700.0, 690.0, 900.0, 650.0,
+     820.0, 850.0, 900.0, 1015.0, 820.0, 1100.0, 1000.0, 1100.0,
+     1000.0, 1000.0]
+     )
+
+import matplotlib.pyplot as plt
+plt.scatter(perch_length, perch_weight)
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+#### # 훈련 세트와 테스트 세트로 나누기
+```python
+from sklearn.model_selection import train_test_split
+train_input, test_input, train_target, test_target = train_test_split(
+    perch_length, perch_weight, random_state=42)
+
+
+print(train_input.shape, test_input.shape)
+
+test_array = np.array([1,2,3,4])
+print(test_array.shape)
+
+test_array = test_array.reshape(2, 2)
+print(test_array.shape)
+
+# 아래 코드의 주석을 제거하고 실행하면 에러가 발생합니다
+# test_array = test_array.reshape(2, 3)
+
+train_input = train_input.reshape(-1, 1)
+test_input = test_input.reshape(-1, 1)
+
+print(train_input.shape, test_input.shape)
+```
+#### # 객체 생성, 회귀 모델 훈련
+```python
+from sklearn.neighbors import KNeighborsRegressor
+```
+-> k-최근접 이웃 회귀 알고리즘을 구현한 클래스는 KNeighborsRegressor
+
+```python
+knr = KNeighborsRegressor()
+
+knr.fit(train_input, train_target)
+```
+#### # 모델 평가 (결정계수)
+```python
+print(knr.score(test_input, test_target))
+```
+> 결정계수 (R<sup>2</sup>)
+>-
+>- 공식:   R<sup>2</sup> = 1 - (타깃 - 예측)<sup>2</sup> / (타깃 - 평균)<sup>2</sup>
+>- 타깃의 평균 정도를 예측하는 수준이라면 R<sup>2</sup>은 0에 가까운 값
+>- 타깃이 예측에 아주 가까워지면 R<sup>2</sup>은 1에 가까운 값
+
+> 사이킷런의 score() 메서드
+>-
+>- k-NN 분류에서는 정확도, k-NN 회귀에서는 결정계수 반환
+>- 높은 값일 수록 좋음.
+
+#### # 모델 평가 (절댓값 오차)
+```python
+from sklearn.metrics import mean_absolute_error
+
+# 테스트 세트에 대한 예측을 만듭니다
+test_prediction = knr.predict(test_input)
+
+# 테스트 세트에 대한 평균 절댓값 오차를 계산합니다
+mae = mean_absolute_error(test_target, test_prediction)
+print(mae)
+```
+
+#### # 모델을 더 복잡하기 만들기 
+```python
+print(knr.score(train_input, train_target))
+```
+
+> 과적합
+>- 
+>- 과대적합: 훈련 세트의 score는 좋았지만 테스트 세트에서의 score가 매우 나쁠 때   
+-> 훈련 세트에만 잘 맞는 모델
+>- 과소적합: 훈련 세트보다 테스트 세트의 score가 높거나 두 점수 모두 낮을 때   
+-> 모델이 너무 단순하여 훈련 세트에 적절히 훈련되지 않은 경우   
+-> 훈련 세트와 테스트 세트의 크기가 매우 작은 것이 원인이 될 수 있음.
+>- k-최근접 이웃 알고리즘으로 모델을 더 복잡하게 만드는 방법: k 값을 줄임.   
+-> k 감소 => 훈련 세트에 있는 국지적인 패턴에 민감해짐.   
+-> k 증가 => 데이터 전반에 있는 일반적인 패턴을 따름.
+
+
+```python
+knr.n_neighbors = 3 # 이웃 갯수 3으로 설정 (기본값 5)
+
+knr.fit(train_input, train_target)
+print(knr.score(train_input, train_target)) # 출력: 0.98...
+
+print(knr.score(test_input, test_target)) # 출력: 0.97...
+```
+
+#### # 확인문제
+```python
+# k-최근접 이웃 회귀 객체를 만듭니다
+knr = KNeighborsRegressor()
+# 5에서 45까지 x 좌표를 만듭니다
+x = np.arange(5, 45).reshape(-1, 1)
+
+# n = 1, 5, 10일 때 예측 결과를 그래프로 그립니다.
+for n in [1, 5, 10]:
+    # 모델 훈련
+    knr.n_neighbors = n
+    knr.fit(train_input, train_target)
+    # 지정한 범위 x에 대한 예측 구하기
+    prediction = knr.predict(x)
+    # 훈련 세트와 예측 결과 그래프 그리기
+    plt.scatter(train_input, train_target)
+    plt.plot(x, prediction)
+    plt.title('n_neighbors = {}'.format(n))
+    plt.xlabel('length')
+    plt.ylabel('weight')
+    plt.show()
+```
+
+
+# **3-2. 선형 회귀**
+### <k-최근접 이웃의 한계>
+
+#### # k-최근접 이웃으로 길이 50cm인 농어 무게 예측
+```python
+import numpy as np
+
+perch_length = np.array(
+    [8.4, 13.7, 15.0, 16.2, 17.4, 18.0, 18.7, 19.0, 19.6, 20.0,
+     21.0, 21.0, 21.0, 21.3 .0, 22.0, 22.0, 22.0, 22.0, 22.5,
+     22.5, 22.7, 23.0, 23.5, 24.0, 24.0, 24.6, 25.0, 25.6, 26.5,
+     27.3, 27.5, 27.5, 27.5, 28.0, 28.7, 30.0, 32.8, 34.5, 35.0,
+     36.5, 36.0, 37.0, 37.0, 39.0, 39.0, 39.0, 40.0, 40.0, 40.0,
+     40.0, 42.0, 43.0, 43.0, 43.5, 44.0]
+     )
+perch_weight = np.array(
+    [5.9, 32.0, 40.0, 51.5, 70.0, 100.0, 78.0, 80.0, 85.0, 85.0,
+     110.0, 115.0, 125.0, 130.0, 120.0, 120.0, 130.0, 135.0, 110.0,
+     130.0, 150.0, 145.0, 150.0, 170.0, 225.0, 145.0, 188.0, 180.0,
+     197.0, 218.0, 300.0, 260.0, 265.0, 250.0, 250.0, 300.0, 320.0,
+     514.0, 556.0, 840.0, 685.0, 700.0, 700.0, 690.0, 900.0, 650.0,
+     820.0, 850.0, 900.0, 1015.0, 820.0, 1100.0, 1000.0, 1100.0,
+     1000.0, 1000.0]
+     )
+
+from sklearn.model_selection import train_test_split
+
+# 훈련 세트와 테스트 세트로 나눔.
+train_input, test_input, train_target, test_target = train_test_split(
+    perch_length, perch_weight, random_state=42)
+
+# 훈련 세트와 테스트 세트를 2차원 배열로 바꿈.
+train_input = train_input.reshape(-1, 1)
+test_input = test_input.reshape(-1, 1)
+
+from sklearn.neighbors import KNeighborsRegressor
+
+# 최근접 이웃 개수를 3으로 하는 모델 훈련
+knr = KNeighborsRegressor(n_neighbors=3)
+knr.fit(train_input, train_target)
+
+# 길이가 50cm인 농어의 무게 예측
+print(knr.predict([[50]])) # 출력: [1033.33333333]
+```
+-> 50cm 농어의 무게를 1,033g 정도로 예측 but 실제 이 농어의 무게는 훨씬 많이 나감.
+
+#### # 훈련 세트와 50cm 농어 최근접 이웃 산점도로 시각화
+```python
+import matplotlib.pyplot as plt
+
+# 50cm 농어의 이웃을 구합니다
+distances, indexes = knr.kneighbors([[50]])
+
+# 훈련 세트의 산점도를 그립니다
+plt.scatter(train_input, train_target)
+# 훈련 세트 중에서 이웃 샘플만 다시 그립니다
+plt.scatter(train_input[indexes], train_target[indexes], marker='D')
+# 50cm 농어 데이터
+plt.scatter(50, 1033, marker='^')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+![50cm 농어 이웃 산점도](/assets/img/50fish.jpg)   
+-> 길이가 커질수록 무게 증가   
+-> 50cm 농어에서 가장 가까운 샘플들은 45cm 근방이므로, 이 샘플들 무게를 평균함.
+
+
+#### # 길이 100cm인 농어 무게 예측
+```python
+# print(np.mean(train_target[indexes]))
+
+print(knr.predict([[100]]))
+
+# 100cm 농어의 이웃을 구합니다
+distances, indexes = knr.kneighbors([[100]])
+
+# 훈련 세트의 산점도를 그립니다
+plt.scatter(train_input, train_target)
+
+# 훈련 세트 중에서 이웃 샘플만 다시 그립니다
+plt.scatter(train_input[indexes], train_target[indexes], marker='D')
+
+# 100cm 농어 데이터
+plt.scatter(100, 1033, marker='^')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+![100cm 농어 산점도](/assets/img/100fish.jpg)
+
+-> 훈련세트에서 가장 길이가 긴 농어보다 더 길이가 긴 농어의 예측 무게는 항상 일정해짐.
+
+### <선형회귀>
+: 특성이 하나인 경우, 그 특성을 가장 잘 나타낼 수 있는 직선을 학습하는 알고리즘
+
+#### # 선형회귀에 필요한 패키지 임포트
+```python
+from sklearn.linear_model import LinearRegression
+```
+-> 사이킷런은 sklearn.linear_model 패키지 아래에 LinearRegression 클래스로 선형 회귀 알고리즘을 구현해 놓음.   
+
+#### # 선형 회귀 모델 훈련, 예측
+```python
+lr = LinearRegression()
+# 선형 회귀 모델 훈련
+lr.fit(train_input, train_target)
+
+# 50cm 농어에 대한 예측
+print(lr.predict([[50]]))
+```
+-> LinearRegression 클래스에도 fit(), score(), predict() 메서드가 있음.   
+(사이킷런의 모델 클래스들은 훈련, 평가, 예측하는 메서드 이름이 모두 동일함.)
+
+#### #모델 파라미터 출력
+```python
+print(lr.coef_, lr.intercept_)
+```
+> 모델 파라미터 
+>-
+>- 머신러닝 알고리즘이 찾은 값   
+>- 머신러닝 알고리즘의 훈련 = 최적의 모델 파라미터를 찾는 것
+>> 선형 회귀의 모델 파라미터
+>>- 직선의 기울기(=계수=가중치): lr 객체의 coef_ 속성에 저장
+>>- 직선의 y절편: lr 객체의 intercept_ 속성에 저장
+
+#### # 선형 회귀 모델 시각화
+```python
+# 훈련 세트의 산점도를 그립니다
+plt.scatter(train_input, train_target)
+
+# 15에서 50까지 1차 방정식 그래프를 그립니다
+plt.plot([15, 50], [15*lr.coef_+lr.intercept_, 50*lr.coef_+lr.intercept_])
+
+# 50cm 농어 데이터
+plt.scatter(50, 1241.8, marker='^')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+![선형회귀](/assets/img/linear.jpg)
+
+#### # 훈련 세트와 테스트 세트에 대한 R<sup>2</sup> 점수 확인
+```python
+print(lr.score(train_input, train_target)) # 출력: 0.9398...
+print(lr.score(test_input, test_target)) # 출력: 0.8247...
+```
+-> 문제1: 훈련 세트의 점수가 높지 않음 => 과소적합   
+-> 문제2: 농어의 무게가 0g 이하로 내려감.
+
+### <다항 회귀>
+: 다항식을 사용한 선형 회귀 (하나의 특성 사용)
+- 농어의 길이와 무게에 대한 산점도는 곡선(2차 함수)에 가까움.
+- 2차 방정식의 그래프를 그리려면 길이를 제곱한 항이 훈련 세트에 추가되어야 함.   
+-> 2차 방정식도 선형 회귀인가??  
+--> 2차항을 다른 변수로 치환하면 여러 변수의 선형 관계로 표현할 수 있음.
+
+#### # 길이<sup>2</sup> 항 추가
+```python
+train_poly = np.column_stack((train_input ** 2, train_input))
+test_poly = np.column_stack((test_input ** 2, test_input))
+
+print(train_poly.shape, test_poly.shape) # 출력: (42, 2), (14, 2)
+```
+-> 넘파이 브로드캐스팅 적용
+
+#### # 모델 훈련
+```python
+lr = LinearRegression()
+lr.fit(train_poly, train_target)
+
+print(lr.predict([[50**2, 50]])) # 출력: [1573.98423528]
+```
+
+#### # 모델의 계수와 절편 출력
+```python
+print(lr.coef_, lr.intercept_) # 출력: [ 1.0143...  -21.5579...] 116.0502...
+```
+![2차방정식](/assets/img/quadratic.jpg)
+
+#### # 2차 곡선을 구간별 직선으로 시각화
+```python
+# 구간별 직선을 그리기 위해 15에서 49까지 정수 배열을 만듭니다
+point = np.arange(15, 50)
+
+# 훈련 세트의 산점도를 그립니다
+plt.scatter(train_input, train_target)
+
+# 15에서 49까지 2차 방정식 그래프를 그립니다
+plt.plot(point, 1.01*point**2 - 21.6*point + 116.05)
+
+# 50cm 농어 데이터
+plt.scatter([50], [1574], marker='^')
+plt.xlabel('length')
+plt.ylabel('weight')
+plt.show()
+```
+![구간별직선](/assets/img/section_linear.jpg)
+
+#### # 다항 회귀 모델로 훈련 세트와 테스트 세트의 R<sup>2</sup> 점수 평가
+```python
+print(lr.score(train_poly, train_target)) # 출력: 0.9706...
+print(lr.score(test_poly, test_target)) # 출력: 0.9775...
+```
+-> 훈련 세트와 테스트 세트에 대한 점수가 높아짐.
+-> but 여전히 테스트 세트의 점수가 조금 더 높음 => 과소적합이 남아있음.
+
+# **3-3. 특성 공학과 규제**
+
+### <다중 회귀>
+: 여러 개의 특성을 사용한 선형 회귀
+
+- 1개의 특성으로 회귀 모델 학습 -> 직선 모델
+- 2개의 특성으로 회귀 모델 학습 -> 평면 모델
+- 3개 이상의 특성으로 회귀 모델 학습 -> 3차원 공간 이상은 그릴 수 없음.
+
+### <특성 공학>
+: 기존의 특성을 사용해 새로운 특성을 뽑아내는 작업   
+-> 특성을 제곱하거나 특성끼리 곱해서 새로운 특성 추가
+
+#### # 데이터 준비
+```python
+import pandas as pd
+
+df = pd.read_csv('https://bit.ly/perch_csv_data')
+perch_full = df.to_numpy() 
+
+print(perch_full)
+
+```
+-> 판다스 라이브러리의 데이터프레임은 넘파이 배열과 같이 다차원 배열을 다루지만 훨씬 더 많은 기능 제공.  
+-> 판다스 데이터프레임을 만들기 위해 주로 CSV 파일 사용
+> pd.read_csv: csv 파일로 데이터프레임 만들기  
+> df.to_numpy(): 데이터프레임을 넘파이로 변환
+
+> 사이킷런의 변환기
+>-
+>: 특성을 만들거나 전처리하기 위한 사이킷런의 클래스
+>- 변환기 클래스는 모두 fit(), transform() 메서드를 제공
+>- (사이킷런의 모델 클래스는 추정기라 부르며, 추정기 클래스들은 fit(), score(), predict() 메서드 제공)
+
+
+```python
+import numpy as np
+
+perch_weight = np.array(
+    [5.9, 32.0, 40.0, 51.5, 70.0, 100.0, 78.0, 80.0, 85.0, 85.0,
+     110.0, 115.0, 125.0, 130.0, 120.0, 120.0, 130.0, 135.0, 110.0,
+     130.0, 150.0, 145.0, 150.0, 170.0, 225.0, 145.0, 188.0, 180.0,
+     197.0, 218.0, 300.0, 260.0, 265.0, 250.0, 250.0, 300.0, 320.0,
+     514.0, 556.0, 840.0, 685.0, 700.0, 700.0, 690.0, 900.0, 650.0,
+     820.0, 850.0, 900.0, 1015.0, 820.0, 1100.0, 1000.0, 1100.0,
+     1000.0, 1000.0]
+     )
+
+from sklearn.model_selection import train_test_split
+
+train_input, test_input, train_target, test_target = train_test_split(perch_full, perch_weight, random_state=42)
+```
+
+#### # 특성 추가
+> fit(): 새롭게 만들 특성 조합을 찾음   
+> transforme(): 실제로 데이터를 변환   
+>```python
+>from sklearn.preprocessing import PolynomialFeatures
+>
+>poly = PolynomialFeatures()
+>poly.fit([[2, 3]])
+>print(poly.transform([[2, 3]])) # 출력: [[1. 2. 3. 4. 6. 9.]]
+>```
+>-> 변환기는 입력 데이터를 변환하는 데 타깃 데이터 필요 X   
+>-> 2개의 특성을 가진 샘플 [2,3]이 6개의 특성을 가진 샘플로 바뀜.   
+>--> 2, 3 각각을 제곱하고 서로 곱한 값이 추가됨.   
+>--> 절편이 항상 값이 1인 특성과 곱해지는 계수로 보아, 1도 함께 추가됨. 
+>```python
+>from sklearn.preprocessing import PolynomialFeatures
+>
+>poly = PolynomialFeatures(include_bias=False)
+>poly.fit([[2, 3]])
+>print(poly.transform([[2, 3]])) # 출력: [[2. 3. 4. 6. 9.]]
+>```
+>-> 사이킷런의 선형 모델은 자동으로 절편을 추가하므로 굳이 1을 특성으로 추가할 필요 X  
+>-> include_bias=False 로 지정하면 1 특성으로 추가 
+
+
+```python
+from sklearn.preprocessing import PolynomialFeatures
+
+poly = PolynomialFeatures(include_bias=False)
+
+poly.fit(train_input)
+train_poly = poly.transform(train_input)
+
+print(train_poly.shape)
+
+poly.get_feature_names_out()
+```
+> get_feature_names() 메서드: 각 특성이 각각 어떤 입력의 조합으로 만들어졌는지 알려 줌.   
+> -> x0: 첫 번째 특성, x1: 두 번째 특성 ...
+
+
+#### # 테스트 세트 변환
+``` python
+test_poly = poly.transform(test_input)
+```
+
+#### # 다중 회귀 모델 훈련
+```python
+from sklearn.linear_model import LinearRegression
+
+lr = LinearRegression()
+lr.fit(train_poly, train_target)
+
+print(lr.score(train_poly, train_target)) # 출력: 0.9903...
+print(lr.score(test_poly, test_target)) # 출력: 0.9714...
+```
+-> 과소적합 문제 해결
+
+#### # 더 많은 특성 추가
+``` python
+poly = PolynomialFeatures(degree=5, include_bias=False) # 5제곱까지 특성을 만듦
+
+poly.fit(train_input)
+train_poly = poly.transform(train_input)
+test_poly = poly.transform(test_input)
+
+print(train_poly.shape) # 출력: (42, 55)
+```
+-> PolynomialFeatures 클래스의 degree 매개변수를 사용하여 필요한 고차항의 최대 차수 지정   
+-> 열의 개수 = 특성의 개수 
+
+```python
+lr.fit(train_poly, train_target)
+
+print(lr.score(train_poly, train_target)) # 출력: 0.9999...
+print(lr.score(test_poly, test_target)) # 출력: -144.4057...
+```
+-> 특성의 개수를 늘리면 훈련 세트에 대해 거의 완벽하게 학습 but 과대적합
+
+
+### <규제>
+: 머신러닝 모델이 훈련 세트를 너무 과도하게 학습하지 못하도록 훼방하는 것. 즉 모델이 훈련 세트에 과대적합되지 않도록 만드는 것.
+- 선형 회귀 모델의 경우 특성에 곱해지는 계수(기울기)의 크기를 작게 만드는 일
+- ex) 하나의 특성을 가진 데이터를 학습한 모델   
+![규제 예시](/assets/img/regularization.jpg)  
+- 특성의 스케일 정규화 X -> 계수 값 차이 발생 -> 규제 적용시 공정한 제어 X   
+=> 규제 적용 전 정규화 필요
+
+
+#### # 특성의 스케일 정규화
+```python
+from sklearn.preprocessing import StandardScaler
+
+ss = StandardScaler() # 객체 ss 초기화
+ss.fit(train_poly) 
+
+train_scaled = ss.transform(train_poly)
+test_scaled = ss.transform(test_poly)
+```
+
+### <릿지 회귀>
+릿지: 계수를 곱한 값을 기준으로 규제를 추가한 선형 회귀 모델
+```python
+from sklearn.linear_model import Ridge
+
+ridge = Ridge()
+ridge.fit(train_scaled, train_target)
+
+print(ridge.score(train_scaled, train_target)) # 출력: 0.9896...
+print(ridge.score(test_scaled, test_target)) # 출력: 0.9790...
+```
+-> 테스트 세트 점수가 정상으로 돌아옴.
+
+#### # 규제의 양 임의로 조절
+> 하이퍼파라미터
+>-
+> : 머신러닝 모델이 학습할 수 없고 사람이 알려줘야 하는 파라미터
+>> alpha 매개변수   
+>>: 릿지와 라쏘 모델을 사용할 때 규제의 양을 조절할 수 있도록 하는 매개변수
+>>- alpha 값이 크면 규제 강도가 세짐
+>>- alpha 값이 작으면 계수를 줄이는 역할이 줄어듦 -> 선형 회귀 모델과 유사해짐.
+>>- 적절한 alpha 값을 찾는 방법: alpha 값에 대한 R<sup>2</sup> 값의 그래프를 그려 보기   
+ -> 훈련 세트와 테스트 세트의 점수가 가장 가까운 지점이 최적의 alpha 값
+
+#### # 적절한 alpha 값 찾기
+```python
+import matplotlib.pyplot as plt
+
+train_score = []
+test_score = []
+
+alpha_list = [0.001, 0.01, 0.1, 1, 10, 100]
+
+for alpha in alpha_list:
+    # 릿지 모델을 만듦
+    ridge = Ridge(alpha=alpha)
+    # 릿지 모델을 훈련
+    ridge.fit(train_scaled, train_target)
+    # 훈련 점수와 테스트 점수를 저장
+    train_score.append(ridge.score(train_scaled, train_target))
+    test_score.append(ridge.score(test_scaled, test_target))
+
+# 왼쪽이 너무 촘촘해지는 것 방지하기 위해 로그 함수로 표현
+plt.plot(np.log10(alpha_list), train_score) 
+plt.plot(np.log10(alpha_list), test_score) 
+
+plt.xlabel('alpha')
+plt.ylabel('R^2')
+plt.show()
+```
+![릿지 alpha 찾기](/assets/img/ridge_alpha.jpg)   
+-> 적절한 alpha 값: 두 그래프가 가장 가깝고 테스트 세트의 점수가 가장 높은 -1, 즉 0.1
+
+#### # alpha 값을 0.1로 하여 최종 모델 훈련
+```python
+ridge = Ridge(alpha=0.1)
+ridge.fit(train_scaled, train_target)
+
+print(ridge.score(train_scaled, train_target)) # 출력: 0.9903...
+print(ridge.score(test_scaled, test_target)) # 출력: 0.9827...
+```
+
+### <라쏘 회귀>
+라쏘: 계수의 절댓값을 기준으로 규제를 적용한 선형 회귀 모델   
+- 위의 Ridge 클래스를 Lasso 클래스로 바꾸면 됨.
+- 계수를 아예 0으로 만들 수도 있음.
+
+```python
+from sklearn.linear_model import Lasso
+
+lasso = Lasso()
+lasso.fit(train_scaled, train_target)
+
+print(lasso.score(train_scaled, train_target)) # 출력: 0.9897
+print(lasso.score(test_scaled, test_target)) # 출력: 0.9800
+```
+#### # 적절한 alpha 값 찾기
+```python
+train_score = []
+test_score = []
+
+alpha_list = [0.001, 0.01, 0.1, 1, 10, 100]
+for alpha in alpha_list:
+    # 라쏘 모델을 만듭니다
+    lasso = Lasso(alpha=alpha, max_iter=10000)
+    # 라쏘 모델을 훈련합니다
+    lasso.fit(train_scaled, train_target)
+    # 훈련 점수와 테스트 점수를 저장합니다
+    train_score.append(lasso.score(train_scaled, train_target))
+    test_score.append(lasso.score(test_scaled, test_target))
+
+plt.plot(np.log10(alpha_list), train_score)
+plt.plot(np.log10(alpha_list), test_score)
+plt.xlabel('alpha')
+plt.ylabel('R^2')
+plt.show()
+```
+![라쏘 알파값](/assets/img/lasso_alpha.jpg)   
+-> 왼쪽은 과대적합, 오른쪽으로 갈수록 두 세트의 점수가 좁혀짐.   
+-> 오른쪽은 아주 크게 점수가 떨어짐 => 과소적합
+-> 최적의 alpha 값: 1, 즉 10
+
+#### # alpha 값을 10으로 하여 최종 모델 훈련
+```python
+lasso = Lasso(alpha=10)
+lasso.fit(train_scaled, train_target)
+
+print(lasso.score(train_scaled, train_target)) # 출력: 0.9888...
+print(lasso.score(test_scaled, test_target)) # 출력: 0.9824
+```
+
+#### # 계수가 0인 특성의 개수
+```python
+print(np.sum(lasso.coef_ == 0)) # 출력: 40
+```
+
+> np.sum() 함수: 배열을 모두 더한 값 반환/ True를 1로, False를 0으로 인식하여 덧셈 가능 
+
+-> 넘파이 배열에 비교 연산자 적용하면 각 원소는 True/False  
+-->  마치 비교 연산자에 맞는 원소 개수를 헤어리는 효과를 냄.
