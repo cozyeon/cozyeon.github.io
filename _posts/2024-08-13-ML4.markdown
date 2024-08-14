@@ -282,3 +282,4 @@ sc.fit(train_scaled, train_target)
 
 print(sc.score(train_scaled, train_target))
 print(sc.score(test_scaled, test_target))
+```
