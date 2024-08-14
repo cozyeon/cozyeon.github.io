@@ -1,0 +1,284 @@
+---
+layout: post
+title: "[혼자 공부하는 머신러닝 + 딥러닝] Chapter4. 다양한 분류 알고리즘"
+date: 2023-08-13
+categories: "머신러닝"
+---
+# **4-1. 로지스틱 회귀**
+
+
+### 로지스틱 회귀
+- 이름은 회귀이지만 분류 모델임.
+- 선형 회귀와 동일하게 선형 방정식을 학습.  
+![로지스틱회귀](/assets/img/logistc.jpg)   
+-> a,b,c,d,e : 가중치 또는 계수   
+-> z는 어떤 값도 가능
+
+
+> 시그모이드 함수
+>- 
+> 로지스틱 회귀에서 z값은 어떤 값도 가능하지만 확률이 되려면 0~1사이 값이 되어야 함. 시그모이드 함수가 이와 같은 역할을 함.   
+![시그모이드함수](/assets/img/sigmoid.jpg)   
+-> z가 무한하게 큰 음수일 경우 0에 가까워짐.   
+-> z가 무한하게 큰 양수일 경우 1에 가까워짐.    
+-> z가 0일 경우 0.5의 값을 가짐.
+> ```python
+> import numpy as np
+> import matplotlib.pyplot as plt
+>
+> z = np.arange(-5, 5, 0.1)
+> phi = 1 / (1 + np.exp(-z))
+>
+> plt.plot(z, phi)
+> plt.xlabel('z')
+> plt.ylabel('phi')
+> plt.show()
+> ```
+
+### 로지스틱 회귀로 이진 분류 수행하기
+> 불리언 인덱싱
+>-
+> True, False 값을 전달하여 행을 선택 
+>```python
+>char_arr = np.array(['A', 'B', 'C', 'D', 'E'])
+>print(char_arr[[True, False, True, False, False]])
+>```
+> -> 'A' 와 'C'만 선택
+
+#### #도미(Bream)과 빙어(Smelt) 행만 골라내기
+```python
+bream_smelt_indexes = (train_target == 'Bream') | (train_target == 'Smelt')
+train_bream_smelt = train_scaled[bream_smelt_indexes]
+target_bream_smelt = train_target[bream_smelt_indexes]
+```
+#### # 로지스틱 회귀 모델 훈련
+```python
+from sklearn.linear_model import LogisticRegression
+
+lr = LogisticRegression()
+lr.fit(train_bream_smelt, target_bream_smelt)
+
+print(lr.predict(train_bream_smelt[:5])) #처음 5개 샘플 예측
+
+print(lr.predict_proba(train_bream_smelt[:5])) #처음 5개 샘플의 예측 확률
+```
+-> predict_proba(): 이진 분류일 경우 음성 클래스와 양성 클래스에 대한 확률 출력
+
+#### # 양성 클래스 확인 
+- 사이킷런은 타깃값을 알파벳순으로 정렬-> classes_ 속성에서 확인 가능
+- 첫 번째 열이 음성 클래스(0), 두 번째 열이 양성 클래스(1)
+```python
+print(lr.classes_)  # 출력: ['Bream' 'Smelt']
+```
+
+#### # 로지스틱 회귀가 학습한 계수 확인
+```python
+print(lr.coef_, lr.intercept_)
+```
+#### # Z값 계산
+```python
+decisions = lr.decision_function(train_bream_smelt[:5]) #처음 5개 샘플의 z값
+print(decisions)
+```
+-> decision_function() 메서드: 양성 클래스에 대한 z값 반환
+
+#### # 시그모이드 함수로 z값을 확률로 변환
+```python
+from scipy.special import expit
+
+print(expit(decisions)) 
+```
+
+### 로지스틱 회귀로 다중 분류 수행하기
+
+#### # 모델 훈련
+```python
+lr = LogisticRegression(C=20, max_iter=1000)
+lr.fit(train_scaled, train_target)
+
+print(lr.score(train_scaled, train_target))
+print(lr.score(test_scaled, test_target))
+```
+-> max_iter 매개변수로 반복 횟수 지정, 기본값 100   
+-> C 매개변수로 규제 조절, 기본값 1, C가 작을수록 규제가 커짐.
+
+```python
+print(lr.predict(test_scaled[:5]))
+
+proba = lr.predict_proba(test_scaled[:5]) 
+print(np.round(proba, decimals=3)) 
+# 확률이 5개의 행 (5개 샘플), 7개의 열(7개 생선)로 출력 
+```
+-> decimals 매개변수: 소수점 몇째자리까지 표기할지 지정 (반올림하여 표기)
+
+#### # 클래스 정보 확인 
+```python
+print(lr.classes_)
+```
+
+#### # 로지스틱 회귀가 학습한 계수 확인
+```python
+print(lr.coef_.shape, lr.intercept_.shape) # 출력: (7, 5) (7,)
+```
+-> 다중 분류는 클래스마다 z값을 하나씩 계산   
+--> 가장 높은 z값을 출력하는 클래스가 예측 클래스가 됨.
+
+>소프트맥스 함수
+>-
+>- 시그모이드 함수: '하나'의 선형 방정식의 출력값을 0~1 사이로 압축
+>- 소프트맥스 함수: '여러 개'의 선형 방정식 출력값을 0~1 사이로 압축하고 전체 합이 1이 되도록 함.   
+![소프트맥스1](/assets/img/softmax1.jpg)         
+![소프트맥스2](/assets/img/softmax2.jpg)
+
+#### # z값 계산
+```python
+decision = lr.decision_function(test_scaled[:5])
+print(np.round(decision, decimals=2)) # 테스트세트 처음 5개 샘플의 z1~z7 출력
+```
+#### # 소프트맥스 함수로 확률로 변환 
+```python
+from scipy.special import softmax
+
+proba = softmax(decision, axis=1)
+print(np.round(proba, decimals=3))
+```
+-> axis=1 : 각 행, 즉 각 샘플에 대해 소프트맥스 계산
+
+
+
+# **4-2. 확률적 경사 하강법**
+### 점진적 학습 or 온라인 학습
+: 이전에 훈련한 모델을 버리지 않고 새로운 데이터에 대해서만 조금씩 더 훈련하는 방법   
+-> 훈련에 사용한 데이터를 모두 유지할 필요 X   
+-> 앞서 학습한 내용 유지 가능
+
+### 확률적 경사 하강법
+- 훈련세트에서 랜덤하게 하나의 샘플을 선택하여 가파른 경사를 조금씩 내려가며 전체 샘플을 모두 사용할 때까지 반복   
+-> 모든 샘플을 다 사용해도 만족할만한 위치에 도달하지 못하면 훈련세트에 모둔 샘플을 다시 채워 넣고 처음부터 시작
+- 에포크: 확률적 경사 하강법에서 훈련 세트를 한 번 모두 사용하는 과정
+- 일반적으로 경사 하강법은 에포크를 수십, 수백 번 수행함.
+
+### 미니배치 경사 하강법
+: 여러 개의 샘플을 사용해 경사 하강법 수행
+
+### 배치 경사 하강법
+: 한 번 경사로를 따라 이동하기 위해 전체 샘플 사용   
+-> 가장 안정적   
+-> but 컴퓨터 자원 많이 사용
+
+### 손실 함수
+: 어떤 문제에서 머신러닝 알고리즘이 얼마나 엉터리인지 측정하는 기준 (값이 작을수록 좋음)   
+- 어떤 값이 최솟값인지 알지 못하므로 값을 조금씩 낮추어야 함.
+- 아주 조금씩 내려오려면 손실함수는 미분 가능해야 함.
+
+
+### 로지스틱 손실 함수 or 이진 크로스엔트로피 손실 함수
+- 분류에서의 손실: 정답을 못 맞히는 것 => 정확도   
+-> 정확도는 샘플의 개수에 따라 가능한 값들이 정해지므로 불연속적.  
+=> 확률을 이용하여 연속적인 손실 함수를 만듦.
+
+- 양성 클래스(타깃 = 1) --> 손실은 -log(예측확률)
+- 음성 클래스(타깃 = 0) --> 손실은 -log(1-예측확률)
+
+> 로지스틱 손실 함수 (이진분류)   
+> 크로스엔트로피 손실함수 (다중분류)
+
+### SGDClassifier
+```python
+import pandas as pd
+
+fish = pd.read_csv('https://bit.ly/fish_csv_data')
+
+fish_input = fish[['Weight','Length','Diagonal','Height','Width']].to_numpy()
+fish_target = fish['Species'].to_numpy()
+```
+#### # 테스트세트와 훈련세트로 나누기
+```python
+from sklearn.model_selection import train_test_split
+
+train_input, test_input, train_target, test_target = train_test_split(
+    fish_input, fish_target, random_state=42)
+```
+#### # 훈련 세트와 테스트 세트의 특성을 표준화 전처리
+```python
+from sklearn.preprocessing import StandardScaler
+
+ss = StandardScaler()
+ss.fit(train_input)
+train_scaled = ss.transform(train_input)
+test_scaled = ss.transform(test_input)
+```
+#### # 모델 훈련
+```python
+from sklearn.linear_model import SGDClassifier
+
+sc = SGDClassifier(loss='log_loss', max_iter=10, random_state=42)
+sc.fit(train_scaled, train_target)
+
+print(sc.score(train_scaled, train_target))
+print(sc.score(test_scaled, test_target))
+```
+-> loss='log_loss' 로 지정하여 로지스틱 손실 함수 지정   
+-> max_liter 로 수행할 에포크 횟수 지정
+
+#### # 모델을 이어서 추가로 훈련
+```python
+sc.partial_fit(train_scaled, train_target)
+
+print(sc.score(train_scaled, train_target))
+print(sc.score(test_scaled, test_target))
+```
+-> partial_fit(): 호출할 때마다 1에포크씩 이어서 훈련
+
+### 에포크와 과대/과소적합
+- 에포크 횟수가 적으면 모델이 훈련 세트를 덜 학습 -> 과소적합
+- 에포크 횟수가 너무 많으면 모델이 훈련 세트에 너무 잘 맞음 -> 과대적합
+- 조기종료: 과대적합이 시작하기 전에 훈련을 멈추는 것
+
+
+```python
+import numpy as np
+
+sc = SGDClassifier(loss='log_loss', random_state=42)
+
+train_score = []
+test_score = []
+
+classes = np.unique(train_target)
+```
+
+#### # 300번의 에포크 동안 훈련세트와 테스트세트의 점수를 리스트에 추가
+```python
+for _ in range(0, 300):
+    sc.partial_fit(train_scaled, train_target, classes=classes)
+
+    train_score.append(sc.score(train_scaled, train_target))
+    test_score.append(sc.score(test_scaled, test_target))
+```
+
+#### # 시각화
+```python
+import matplotlib.pyplot as plt
+
+plt.plot(train_score)
+plt.plot(test_score)
+plt.xlabel('epoch')
+plt.ylabel('accuracy')
+plt.show()
+```
+#### # 반복 횟수를 100에 맞추고 모델 다시 훈련
+```python
+sc = SGDClassifier(loss='log_loss', max_iter=100, tol=None, random_state=42)
+sc.fit(train_scaled, train_target)
+
+print(sc.score(train_scaled, train_target))
+print(sc.score(test_scaled, test_target))
+```
+
+#### # 힌지 손실을 사용해 모델 훈련
+```python
+sc = SGDClassifier(loss='hinge', max_iter=100, tol=None, random_state=42)
+sc.fit(train_scaled, train_target)
+
+print(sc.score(train_scaled, train_target))
+print(sc.score(test_scaled, test_target))
