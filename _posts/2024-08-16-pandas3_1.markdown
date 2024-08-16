@@ -486,6 +486,7 @@ plt.show()
 ```
 #### # 점의 크기로 3번째 변수 표현 (버블 차트)
 - s옵션에 새로운 변수 입력
+
 ```python
 # cylinders 개수의 상대적 비율을 계산하여 시리즈 생성
 cylinders_size = df.cylinders / df.cylinders.max() * 300
