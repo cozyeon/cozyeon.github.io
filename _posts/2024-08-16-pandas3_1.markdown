@@ -100,6 +100,7 @@ plt.xticks(rotation=90)
 
 #### # 그래프 꾸미기
 - 스타일 서식 지정은 Matplotlib 실행 환경 설정을 변경하는 것이므로 다른 파일을 실행할 때도 계속 적용됨.
+
 ```python
 # 스타일 서식 지정
 plt.style.use('ggplot') 
@@ -115,6 +116,7 @@ plt.legend(labels=['서울 -> 경기'], loc='best', fontsize=15)   #범례 표�
 
 plt.show()  # 변경사항 저장하고 그래프 출력
 ```
+
 > Matplotlip 스타일 서식의 종류
 >-
 >- 종류: 'classic', 'bmh', 'dark_backgroud', 'fast', 'grayscale', 'seaborn' 등
@@ -234,6 +236,7 @@ plt.show()  # 변경사항 저장하고 그래프 출력
 
 #### # 동일한 axe 객체에 여러 개의 그래프 추가
 - 동일한 axe 객체에 plot() 메소드를 여러 번 적용
+
 ```python
 # 서울에서 다른 지역으로 이동한 데이터만 추출하여 정리
 mask = (df['전출지별'] == '서울특별시') & (df['전입지별'] != '서울특별시') 
@@ -307,10 +310,9 @@ plt.show()  # 변경사항 저장하고 그래프 출력
 -> stacked=True (기본값): 각 열의 패턴과 열 전체의 합계가 어떻게 변하는지 파악 가능 => 누적 선 그래프 (stacked line plot)   
 -> stacked=False: 각 열의 선 그래프들이 서록 겹치도록 표시
 
-
 #### # unstacked 버전
-```python
 
+```python
 # 서울에서 다른 지역으로 이동한 데이터만 추출하여 정리
 mask = (df['전출지별'] == '서울특별시') & (df['전입지별'] != '서울특별시') 
 df_seoul = df[mask]
@@ -341,6 +343,7 @@ plt.show()
 ```
 
 #### # stacked 버전 + axe 객체 세부 요소 설정
+
 ```python
 # 면적 그래프 axe 객체 생성
 ax = df_4.plot(kind='area', stacked=True, alpha=0.2, figsize=(20, 10))
@@ -399,6 +402,7 @@ plt.show()
 
 #### # 가로형 막대 
 2010~2017년의 기간 동안 서울에서 각 시도로 이동한 인구의 합계를 구하여 시도별로 비교하는 그래프
+
 ```python
 # 2010-2017년 이동 인구 수를 합계하여 새로운 열로 추가
 df_4['합계'] = df_4.sum(axis=1)
@@ -508,6 +512,7 @@ plt.title('Scatter Plot: mpg-weight-cylinders')
 >- 
 >- savefig() 함수에 저장하려는 파일의 이름과 파일 경로 설정.
 >- transparent=True 옵션: 그림 패경 투명하게 지정
+>
 >```python
 >plt.savefig("./scatter.png")   
 >plt.savefig("./scatter_transparent.png", transparent=True)   
@@ -545,6 +550,7 @@ plt.show()
 - 최소값, 1분위값, 중간값, 3분위값, 최대값 제공
 - boxplot() 메소드 사용   
 -> vert 옵션: True는 수직 박스, False는 수평 박스  
+
 ```python
 plt.style.use('seaborn-poster')            # 스타일 서식 지정
 plt.rcParams['axes.unicode_minus']=False   # 마이너스 부호 출력 설정
@@ -578,9 +584,11 @@ ax2.set_title('제조국가별 연비 분포(수평 박스 플롯)')
 
 plt.show()
 ```
+
  > 파이썬 그래프 갤러리
  >-  파이썬으로 그릴 수 있는 다양한 그래프와 설정 옵션을 참조할 수 있는 사이트
  >- https://python-graph-gallery.com
+
 
  [출처: 파이썬 머신러닝 판다스 데이터분석]
 

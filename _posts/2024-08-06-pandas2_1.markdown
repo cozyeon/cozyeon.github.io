@@ -31,6 +31,7 @@ pandas.read_csv("파일 경로(이름)")
 
 #### # header 옵션
 : 데이터 프레임의 열 이름으로 사용할 행 지정
+
 ```python
 pandas.read_csv("file", header=0) 
 pandas.read_csv("file", header=None) # 첫 행의 데이터가 열 이름이 됨.
@@ -60,6 +61,7 @@ df2 = pd.read_excel("file", engine= 'openpyxl', header=None) # header 옵션 미
 - 확장자: .json
 - 데이터 공유를 목적으로 개발된 특수한 파일 형식
 - "key : value" 구조
+
 ```python
 import pandas as pd
 
@@ -71,6 +73,7 @@ print (df.index) # 출력: Index(['Numpy', 'matplotlib', 'pandas'], dtype='objec
 # **2. 웹에서 가져오기**
 ### **2-1. HTML 웹 페이지에서 표 속성 가져오기**
 #### # HTML 표 속성 읽기
+
 ```python
 pandas.read_html("URL" 또는 "HTML")
 ```
