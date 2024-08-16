@@ -14,15 +14,15 @@ categories: "판다스"
 - CSV 파일에 따라 쉼표 대신 탭이나 공백으로 텍스트 구분하기도 함.  
 -> 구분자 옵션을 알맞게 입력해야 함.
 - read_csv() 함수의 옵션:   
-    1) path: 파일의 위치(파일명 포함), URL
-    2) sep / delimiter: 텍스트 데이터를 필드별로 구분하는 문자
-    3) header: 열 이름으로 사용될 행의 번호(기본값 0), header가 없고 첫 행부터 데이터가 있는 경우 None으로 지정 가능
-    4) index_col: 행 인덱스로 사용할 열의 번호 또는 열의 이름
-    5) names: 열 이름으로 사용할 문자열의 리스트
-    6) skiprows: 처음 몇 줄을 skip 할 것인지 설정(숫자 입력) / skip하려는 행의 번호를 담은 리스트로 설정 가능
-    7) parse_dates: 날짜 텍스트를 datetime64로 변환할 것인지 설정(기본값 False)
-    8) skip_footer: 마지막 몇 줄을 skip할 것인지 설정 (숫자 입력)
-    9) encoding: 텍스트 인코딩 종류를 지정
+    1) path: 파일의 위치(파일명 포함), URL   
+    2) sep / delimiter: 텍스트 데이터를 필드별로 구분하는 문자   
+    3) header: 열 이름으로 사용될 행의 번호(기본값 0), header가 없고 첫 행부터 데이터가 있는 경우 None으로 지정 가능   
+    4) index_col: 행 인덱스로 사용할 열의 번호 또는 열의 이름   
+    5) names: 열 이름으로 사용할 문자열의 리스트    
+    6) skiprows: 처음 몇 줄을 skip 할 것인지 설정(숫자 입력) / skip하려는 행의 번호를 담은 리스트로 설정 가능    
+    7) parse_dates: 날짜 텍스트를 datetime64로 변환할 것인지 설정(기본값 False)      
+    8) skip_footer: 마지막 몇 줄을 skip할 것인지 설정 (숫자 입력)     
+    9) encoding: 텍스트 인코딩 종류를 지정    
 
 #### # CSV파일 -> 데이터프레임
 ```python
