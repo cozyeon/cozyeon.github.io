@@ -9,6 +9,7 @@ categories: "머신러닝"
 ### 로지스틱 회귀로 와인 분류하기
 
 #### # 데이터 파악
+
 ```python
 import pandas as pd
 
@@ -20,11 +21,13 @@ wine.info()
 
 wine.describe()
 ```
+
 -> head(): 처음 5개 샘플 확인 (0~4행 출력)   
 -> info(): 데이터프레임의 각 열의 데이터 타입과 누락된 데이터 있는지 확인하는 데 유용   
 -> describe(): 각 열에 대한 평균, 표준편차, 최소, 1사분위수, 중간값, 2사분위수, 3사분위수, 최대 출력   
 
 #### # 훈련세트와 테스트세트로 나누기
+
 ```python
 data = wine[['alcohol', 'sugar', 'pH']].to_numpy() # 판다스 데이터프레임을 넘파이 배열로 바꿈
 target = wine['class'].to_numpy()
@@ -39,6 +42,7 @@ print(train_input.shape, test_input.shape)
 -> test_size: 테스트 세트의 비율 설정, 기본값 25%
 
 #### # 로지스틱 회귀 모델 훈련
+
 ```python
 from sklearn.preprocessing import StandardScaler
 
@@ -58,13 +62,16 @@ print(lr.score(test_scaled, test_target)) #출력: 0.77...
 
 print(lr.coef_, lr.intercept_) 
 ```
+
 -> 훈련 세트와 테스트 세트의 점수가 모두 낮으므로 과소적합   
 -> 계수와 절편으로 모델을 규정할 수 있지만 학습의 결과를 설명하기 어려움.
 
 
 ### 결정 트리
 - 리프 노드에서 가장 많은 클래스가 예측 클래스가 됨.
+
 #### # 모델 훈련, 성능 평가
+
 ```python
 from sklearn.tree import DecisionTreeClassifier
 
@@ -77,6 +84,7 @@ print(dt.score(test_scaled, test_target)) #출력: 0.85...
 -> 훈련 세트 점수는 매우 높지만 테스트 세트 점수는 비교적 낮으므로 과대적합   
 
 #### # 결정 트리 그림 출력
+
 ```python
 import matplotlib.pyplot as plt
 from sklearn.tree import plot_tree
@@ -88,11 +96,13 @@ plt.show()
 -> plot_tree() 함수: 결정 트리를 트리 그림으로 출력
 
 #### # 매개변수 설정으로 원하는 트리 출력
+
 ```python
 plt.figure(figsize=(10,7))
 plot_tree(dt, max_depth=1, filled=True, feature_names=['alcohol', 'sugar', 'pH'])
 plt.show()
 ```
+
 -> max_depth: 트리의 깊이 제한    
 -> filled 매개변수: 클래스에 맞게 노드의 색 칠함.   
 -> feature_names 매개변수: 특성의 이름 전달   
@@ -123,6 +133,7 @@ plt.show()
 : 트리의 최대 깊이 지정
 
 #### # 트리의 최대 깊이 지정
+
 ```python
 dt = DecisionTreeClassifier(max_depth=3, random_state=42)
 dt.fit(train_scaled, train_target)
@@ -133,6 +144,7 @@ print(dt.score(test_scaled, test_target)) #출력: 0.841...
 -> max_depth 매개변수: 트리의 최대 깊이 지정
 
 #### # 트리 그래프 출력
+
 ```python
 plt.figure(figsize=(20,15))
 plot_tree(dt, filled=True, feature_names=['alcohol', 'sugar', 'pH'])
@@ -143,6 +155,7 @@ plt.show()
 => 특성값의 스케일은 결정 트리 알고리즘에 아무런 영향을 미치지 않으므로 표준화 전처리 할 필요 없음!
 
 #### # 전처리 전의 샘플로 결정 트리 모델 다시 훈련
+
 ```python
 dt = DecisionTreeClassifier(max_depth=3, random_state=42)
 dt.fit(train_input, train_target)
@@ -158,12 +171,14 @@ plt.show()
 
 #### # 특성 중요도 계산
 특성 중요도: 어떤 특성이 가장 유용한지 나타냄.
+
 ```python
 print(dt.feature_importances_)
 ```
 -> 특성 중요도는 결정 트리 모델의 feture_importances_ 속성에 저장, 출력된 값들을 모두 더하면 1이 됨.
 
 # **5-2. 교차 검증과 그리드 서치**
+
 ### 검증 세트
 : 테스트 세트 대신 모델의 과대/과소 적합 여부를 판단하는 데 사용하기 위해 훈련 세트에서 떼어 낸 세트
 - 매개변수를 바꿔가며 검증 세트로 테스트하여 가장 좋은 모델을 고름.   
@@ -171,6 +186,7 @@ print(dt.feature_importances_)
 -> 마지막에 테스트 세트에서 최종 점수 평가
 
 #### # 데이터 준비하기
+
 ```python
 import pandas as pd
 
@@ -180,6 +196,7 @@ data = wine[['alcohol', 'sugar', 'pH']].to_numpy() # class가 아닌 열은 특�
 target = wine['class'].to_numpy() # class 열을 타깃으로 사용
 ```
 #### # 훈련, 검증, 테스트 세트로 나누기
+
 ```python
 from sklearn.model_selection import train_test_split
 
@@ -193,6 +210,7 @@ print(sub_input.shape, val_input.shape)
 ```
 
 #### # 모델 훈련, 평가
+
 ```python
 from sklearn.tree import DecisionTreeClassifier
 
@@ -214,12 +232,14 @@ print(dt.score(val_input, val_target)) #출력: 0.86...
  ![cross_validation](/assets/img/cross_validation.jpg)
 
 #### # 교차 검증 수행
+
 ```python
 from sklearn.model_selection import cross_validate
 
 scores = cross_validate(dt, train_input, train_target)
 print(scores)
 ```
+
 >cross_validate() 함수
 >-
 >- 평가할 모델 객체, 훈련 세트 전체를 전달받아 교차 검증 수행.
@@ -233,6 +253,7 @@ print(scores)
 >   - 회귀 모델일 경우 KFold 분할기, 분류 모델일 경우 StratifiedKFold 사용
 
 #### # 교차 검증 점수 구하기
+
 ```python
 import numpy as np
 
@@ -241,6 +262,7 @@ print(np.mean(scores['test_score']))
 
 #### # 분할기 지정
 분할기: 교차 검증에서 폴드를 어떻게 나눌지 결정. 
+
 ```python
 from sklearn.model_selection import StratifiedKFold
 
@@ -250,6 +272,7 @@ print(np.mean(scores['test_score']))
 -> 우리는 train_test_split() 함수로 전체 데이터를 섞은 후 훈련 세트를 준비했으므로 앞서 수행한 교차 검증은 위의 코드와 동일함.
 
 #### # 훈련 세트를 섞은 후 10-폴드 교차 검증을 수행하려면
+
 ```python
 splitter = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
 scores = cross_validate(dt, train_input, train_target, cv=splitter)
@@ -271,6 +294,7 @@ print(np.mean(scores['test_score']))
 : 매개변수들을 동시에 수정하며 최적의 값을 찾는 방법
 
 #### # 탐색할 매개변수와 값 지정
+
 ```python
 from sklearn.model_selection import GridSearchCV
 
@@ -279,6 +303,7 @@ params = {'min_impurity_decrease': [0.0001, 0.0002, 0.0003, 0.0004, 0.0005]}
 -> 사이킷런의 GridSearchCV: 하이퍼파라미터 탐색과 교차 검증을 한 번에 수행, cross_validate() 호출할 필요X
 
 #### # 그리드 서치 객체 생성, 그리드 서치 수행
+
 ```python
 gs = GridSearchCV(DecisionTreeClassifier(random_state=42), params, n_jobs=-1)
 
@@ -290,6 +315,7 @@ gs.fit(train_input, train_target)
 
 
 #### # 자동으로 최적의 매개변수로 다시 모델 훈련
+
 ```python
 dt = gs.best_estimator_
 print(dt.score(train_input, train_target))
@@ -302,6 +328,7 @@ print(gs.best_params_)
 
 
 #### #교차 검증의 평균 점수를 통해 최적의 매개변수 출력
+
 ```python
 print(gs.cv_results_['mean_test_score'])
 
@@ -312,6 +339,7 @@ print(gs.cv_results_['params'][best_index])
 
 
 #### # 더 복잡한 매개변수 조합 탐색
+
 ```python
 params = {'min_impurity_decrease': np.arange(0.0001, 0.001, 0.0001),
           'max_depth': range(5, 20, 1),
@@ -327,7 +355,9 @@ gs.fit(train_input, train_target)
 
 print(gs.best_params_)
 ```
+
 -> 최상의 매개변수 조합 확인
+
 ```python
 print(np.max(gs.cv_results_['mean_test_score']))
 ```
@@ -353,6 +383,7 @@ from scipy.stats import uniform, randint
 ```
 
 #### # 탐색할 매개변수의 딕셔너리 만들기
+
 ```python
 params = {'min_impurity_decrease': uniform(0.0001, 0.001),
           'max_depth': randint(20, 50),
@@ -362,6 +393,7 @@ params = {'min_impurity_decrease': uniform(0.0001, 0.001),
 ```
 
 #### # 랜덤 서치 객체 생성, 랜덤 서치 수행
+
 ```python
 from sklearn.model_selection import RandomizedSearchCV
 
@@ -410,6 +442,7 @@ print(dt.score(test_input, test_target))
 > 부트스트랩 샘플: 샘플을 하나씩 뽑을 때 뽑았던 샘플을 다시 넣고 뽑는 방식을 반복해서 중복된 샘플을 허용하여 만든 샘플
 
 #### # 와인 데이터 준비
+
 ```python
 import numpy as np
 import pandas as pd
@@ -424,6 +457,7 @@ train_input, test_input, train_target, test_target = train_test_split(data, targ
 ```
 
 #### # 교차 검증 수행
+
 ```python
 from sklearn.model_selection import cross_validate
 from sklearn.ensemble import RandomForestClassifier
@@ -435,6 +469,7 @@ print(np.mean(scores['train_score']), np.mean(scores['test_score']))
 ```
 
 #### # 특성 중요도 계산
+
 ```python
 rf.fit(train_input, train_target) # 랜덤 포레스트 모델을 훈련 세트에 훈련
 print(rf.feature_importances_)
@@ -443,6 +478,7 @@ print(rf.feature_importances_)
 
 #### # 자체적으로 모델을 평가하는 점수 계산
 OOB 샘플 (부트스트랩 샘플에 포함되지 않고 남는 샘플)로 부트스트랩 샘플로 훈련한 모델 평가
+
 ```python
 rf = RandomForestClassifier(oob_score=True, n_jobs=-1, random_state=42)
 
@@ -459,6 +495,7 @@ print(rf.oob_score_)
 (= DecisionTreeClassifier의 splitter='random')
 
 #### # 모델의 교차 검증 점수 확인
+
 ```python
 from sklearn.ensemble import ExtraTreesClassifier
 
@@ -469,6 +506,7 @@ print(np.mean(scores['train_score']), np.mean(scores['test_score']))
 ```
 
 #### # 특성 중요도 확인
+
 ```python
 et.fit(train_input, train_target)
 print(et.feature_importances_)
@@ -483,7 +521,9 @@ print(et.feature_importances_)
 - 랜덤 포레스트보다 조금 더 높은 성능을 얻을 수 있음. 
 - 순서대로 트리를 추가하므로 훈련 속도가 늘미.
 
+
 #### # 교차 검증 수행
+
 ```python
 from sklearn.ensemble import GradientBoostingClassifier
 
@@ -494,6 +534,7 @@ print(np.mean(scores['train_score']), np.mean(scores['test_score']))
 #출력: 0.88...  0.87...
 ```
 #### # 학습률과 트리의 개수 증가
+
 ```python
 gb = GradientBoostingClassifier(n_estimators=500, learning_rate=0.2, random_state=42)
 scores = cross_validate(gb, train_input, train_target, return_train_score=True, n_jobs=-1)
@@ -505,6 +546,7 @@ print(np.mean(scores['train_score']), np.mean(scores['test_score']))
 -> 결정 트리 개수를 5배나 늘렸지만 과대적합 잘 억제
 
 #### # 특성 중요도 확인
+
 ```python
 gb.fit(train_input, train_target)
 print(gb.feature_importances_)
@@ -521,6 +563,7 @@ print(gb.feature_importances_)
 - 트리의 개수를 지정하는 n_estimators 대신 부스팅 반복 횟수를 지정하는 max_iter 사용
 
 #### # 교차 검증 수행
+
 ``` python
 # 사이킷런 1.0 버전 아래에서는 다음 라인의 주석을 해제하고 실행하세요.
 # from sklearn.experimental import enable_hist_gradient_boosting
@@ -533,6 +576,7 @@ print(np.mean(scores['train_score']), np.mean(scores['test_score']))
 ```
 
 #### # 특성 중요도 확인
+
 ```python
 from sklearn.inspection import permutation_importance
 
@@ -546,6 +590,7 @@ print(result.importances_mean)
 -> 다양한 특성을 골고루 잘 평가한다고 예상 가능
 
 #### # 테스트 세트에서의 성능 최종 확인
+
 ```python
 hgb.score(test_input, test_target) #출력: 0.87...
 ```
@@ -564,6 +609,7 @@ hgb.score(test_input, test_target) #출력: 0.87...
 >print(np.mean(scores['train_score']), np.mean(scores['test_score']))
 >```
 >### LightGBM 
+>
 >```python
 >from lightgbm import LGBMClassifier
 >
