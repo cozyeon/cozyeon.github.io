@@ -477,7 +477,8 @@ print(rf.feature_importances_)
 -> 랜덤 포레스트는 DecesionTreeClassifier가 제공하는 중요한 매개변수 모두 제공
 
 #### # 자체적으로 모델을 평가하는 점수 계산
-OOB 샘플 (부트스트랩 샘플에 포함되지 않고 남는 샘플)로 부트스트랩 샘플로 훈련한 모델 평가
+OOB 샘플 (부트스트랩 샘플에 포함되지 않고 남는 샘플)로 부트스트랩 샘플로 훈련한 모델 평가   
+->  OOB 점수를 사용하면 교차 검증을 대신할 수 있어 훈련세트에 더 많은 샘플을 사용할 수 있음.
 
 ```python
 rf = RandomForestClassifier(oob_score=True, n_jobs=-1, random_state=42)
