@@ -105,7 +105,7 @@ plt.hist(np.mean(banana, axis=1), alpha=0.8)
 plt.legend(['apple', 'pineapple', 'banana'])
 plt.show()
 ```
-![fruit_histogram](/assets/img/histogram.jpg)   
+![fruit_histogram](/assets/img/fruit_histogram.jpg)   
 -> 바나나는 다른 두 과일보다 평균값이 작음.   
 -> 사과와 파인애플은 평균값 비슷   
 
