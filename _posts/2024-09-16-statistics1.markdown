@@ -2,7 +2,7 @@
 layout: post
 title: "[통계101 데이터분석] Part 1,2,3"
 date: 2023-09-16
-categories: "데이터와 통계학"
+categories: "데이터와통계학"
 ---
 
 # 1장. 통계학이란?
