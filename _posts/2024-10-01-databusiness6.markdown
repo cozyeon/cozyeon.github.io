@@ -356,6 +356,7 @@ print(df_tr_new)
 print("총 운송 비용(변경 후):"+str(trans_cost(df_tr_new,df_tc)))
 ```
 #### # 제약조건 계산함수
+
 ```python
 # 수요측
 def condition_demand(df_tr,df_demand):

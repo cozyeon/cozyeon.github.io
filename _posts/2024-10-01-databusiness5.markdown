@@ -240,8 +240,8 @@ input_data.extend(campaign_name_list)
 input_data.extend(class_name_list)
 input_data.extend(gender_list)
 
-print(model.predict([input_data])) # 출력: [1.]
-print(model.predict_proba([input_data])) # 출력: [0.01...  0.98...]
+print(model.predict([input_data])) # 출력: [1. ]
+print(model.predict_proba([input_data])) # 출력: [0.01...  0.98... ]
 ```
 
 
