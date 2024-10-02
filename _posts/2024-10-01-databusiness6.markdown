@@ -305,6 +305,7 @@ def trans_cost(df_tr,df_tc):
     return cost
 
 print("총 운송 비용:"+str(trans_cost(df_tr,df_tc)))
+
 ```
 -> 운송 비용 = 시그마 (운송량 x 비용)
 
