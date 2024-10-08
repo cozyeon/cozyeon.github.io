@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "[파이썬 데이터분석 실무 테크닉 100] 08장. 수치 시뮬레이션으로 소비자의 행동을 예측하는 테크닉 10
+title: "[파이썬 데이터분석 실무 테크닉 100] 08장. 수치 시뮬레이션으로 소비자의 행동을 예측하는 테크닉 10"
 date: 2023-10-08
 categories: "데이터비지니스"
 ---
@@ -263,6 +263,7 @@ plt.show()
 
 - links_members.csv: 540명의 SNS 연결 저장
 - info_members.csv: 540auddml 24개월간 이용 현황 (이용 내역 있는 달 1)
+
 ```python
 import pandas as pd
 
